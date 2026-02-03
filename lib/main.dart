@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'screens/home_screen.dart';
+import 'screens/login_screen.dart';
+import 'screens/main_navigation_screen.dart';
 import 'theme/app_theme.dart';
 
 void main() {
@@ -17,7 +18,20 @@ class QuizzUpApp extends StatelessWidget {
       darkTheme: AppTheme.darkTheme,
       themeMode: ThemeMode.system,
       debugShowCheckedModeBanner: false,
-      home: HomeScreen(),
+      home: const LoginScreen(),
+      routes: {
+        '/home': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+          final username = args?['username'] as String? ?? 'Samy';
+          return MainNavigationScreen(username: username, initialIndex: 0);
+        },
+        '/login': (context) => const LoginScreen(),
+        '/profile': (context) {
+          final args = ModalRoute.of(context)?.settings.arguments as Map<String, dynamic>?;
+          final username = args?['username'] as String? ?? 'Samy';
+          return MainNavigationScreen(username: username, initialIndex: 1);
+        },
+      },
     );
   }
 }

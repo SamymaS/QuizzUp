@@ -1,64 +1,33 @@
 import 'package:flutter/material.dart';
-import '../models/category.dart';
 import '../models/duel.dart';
-import '../widgets/category_card.dart';
-import '../widgets/duel_card.dart';
+import '../utils/ux_constants.dart';
+import '../widgets/ux_button.dart';
+import '../widgets/ux_stat_card.dart';
+import 'game_mode_screen.dart';
 
-class HomeScreen extends StatelessWidget {
-  HomeScreen({super.key});
+class HomeScreen extends StatefulWidget {
+  final String username;
+  
+  const HomeScreen({
+    super.key,
+    this.username = 'Samy',
+  });
 
-  // Données temporaires (seront remplacées par un service/API plus tard)
-  final List<Category> _categories = [
-    Category(
-      id: '1',
-      name: 'Culture Générale',
-      icon: '🎯',
-      questionCount: 150,
-      color: Colors.blue,
-    ),
-    Category(
-      id: '2',
-      name: 'Histoire',
-      icon: '📜',
-      questionCount: 120,
-      color: Colors.orange,
-    ),
-    Category(
-      id: '3',
-      name: 'Sciences',
-      icon: '🔬',
-      questionCount: 100,
-      color: Colors.green,
-    ),
-    Category(
-      id: '4',
-      name: 'Sport',
-      icon: '⚽',
-      questionCount: 80,
-      color: Colors.red,
-    ),
-    Category(
-      id: '5',
-      name: 'Géographie',
-      icon: '🌍',
-      questionCount: 90,
-      color: Colors.purple,
-    ),
-    Category(
-      id: '6',
-      name: 'Cinéma',
-      icon: '🎬',
-      questionCount: 70,
-      color: Colors.pink,
-    ),
-  ];
+  @override
+  State<HomeScreen> createState() => _HomeScreenState();
+}
+
+class _HomeScreenState extends State<HomeScreen> {
+  final int _victories = 12;
+  final int _inProgress = 5;
+  final double _winRate = 75.0;
 
   final List<Duel> _pendingDuels = [
     Duel(
       id: '1',
       opponentName: 'Alice',
       category: 'Culture Générale',
-      createdAt: null, // Sera géré avec DateTime.now() dans le vrai code
+      createdAt: null,
       isCompleted: false,
     ),
     Duel(
@@ -68,208 +37,287 @@ class HomeScreen extends StatelessWidget {
       createdAt: null,
       isCompleted: false,
     ),
+    Duel(
+      id: '3',
+      opponentName: 'Charlie',
+      category: 'Sciences',
+      createdAt: null,
+      isCompleted: false,
+    ),
   ];
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final availableHeight = screenHeight - 
+      MediaQuery.of(context).padding.top - 
+      MediaQuery.of(context).padding.bottom - 
+      kBottomNavigationBarHeight;
+
     return Scaffold(
-      appBar: AppBar(
-        title: const Text(
-          'QuizzUp',
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
-          ),
-        ),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.person),
-            onPressed: () {
-              // Navigation vers le profil (à implémenter)
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Profil - À venir')),
-              );
-            },
-            tooltip: 'Profil',
-          ),
-        ],
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.all(16),
+      backgroundColor: UXConstants.lightBackground,
+      body: SafeArea(
         child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Section Défis en cours
-            if (_pendingDuels.isNotEmpty) ...[
-              const Text(
-                'Défis en attente',
-                style: TextStyle(
-                  fontSize: 20,
-                  fontWeight: FontWeight.bold,
-                ),
+            // Bannière de bienvenue (sans fond noir, meilleur contraste)
+            Container(
+              width: double.infinity,
+              padding: EdgeInsets.symmetric(
+                horizontal: UXConstants.screenPadding.horizontal,
+                vertical: UXConstants.standardSpacing,
               ),
-              const SizedBox(height: 12),
-              SizedBox(
-                height: 125,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: _pendingDuels.length,
-                  itemBuilder: (context, index) {
-                    return DuelCard(duel: _pendingDuels[index]);
-                  },
-                ),
+              decoration: BoxDecoration(
+                color: UXConstants.primaryColor,
+                boxShadow: [
+                  BoxShadow(
+                    color: UXConstants.primaryColor.withValues(alpha: 0.2),
+                    blurRadius: 8,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
               ),
-              const SizedBox(height: 24),
-            ],
-
-            // Section Quiz rapide
-            const Text(
-              'Jouer maintenant',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
+              child: Row(
+                children: [
+                  // Avatar utilisateur
+                  CircleAvatar(
+                    radius: 24,
+                    backgroundColor: Colors.white.withValues(alpha: 0.2),
+                    child: const Icon(
+                      Icons.person,
+                      color: Colors.white,
+                      size: 24,
+                    ),
+                  ),
+                  SizedBox(width: UXConstants.standardSpacing),
+                  // Texte de bienvenue
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'BIENVENUE',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: UXConstants.smallTextSize,
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                        Text(
+                          widget.username,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: UXConstants.primaryTextSize,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Bouton déconnexion
+                  IconButton(
+                    onPressed: () {
+                      Navigator.of(context).pushReplacementNamed('/login');
+                    },
+                    icon: const Icon(
+                      Icons.logout,
+                      color: Colors.white,
+                    ),
+                    tooltip: 'Déconnexion',
+                  ),
+                ],
               ),
             ),
-            const SizedBox(height: 16),
-            Row(
-              children: [
-                Expanded(
-                  child: _GameModeCard(
-                    icon: Icons.person,
-                    title: 'Quiz Solo',
-                    subtitle: 'Entraîne-toi',
-                    color: Colors.blue,
-                    onTap: () {
-                      // Navigation vers la sélection de catégorie (à implémenter)
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Quiz Solo - À venir')),
-                      );
-                    },
+            // Contenu principal - optimisé pour éviter le scroll
+            Expanded(
+              child: SingleChildScrollView(
+                physics: const ClampingScrollPhysics(),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: availableHeight - 80, // Hauteur de la bannière
+                  ),
+                  child: Padding(
+                    padding: UXConstants.screenPadding,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Statistiques (3 stats compactes)
+                        Row(
+                          children: [
+                            Expanded(
+                              child: UXStatCard(
+                                icon: Icons.emoji_events,
+                                value: '$_victories',
+                                label: 'Victoires',
+                                color: UXConstants.warningColor,
+                              ),
+                            ),
+                            SizedBox(width: UXConstants.standardSpacing),
+                            Expanded(
+                              child: UXStatCard(
+                                icon: Icons.access_time,
+                                value: '$_inProgress',
+                                label: 'En cours',
+                                color: UXConstants.secondaryColor,
+                              ),
+                            ),
+                            SizedBox(width: UXConstants.standardSpacing),
+                            Expanded(
+                              child: UXStatCard(
+                                icon: Icons.trending_up,
+                                value: '${_winRate.toInt()}%',
+                                label: 'Taux',
+                                color: UXConstants.accentColor,
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: UXConstants.largeSpacing),
+                        // Carte "Prêt à jouer ?" (action principale)
+                        Container(
+                          width: double.infinity,
+                          padding: UXConstants.cardPadding,
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                UXConstants.primaryColor,
+                                UXConstants.secondaryColor,
+                              ],
+                            ),
+                            borderRadius: BorderRadius.circular(UXConstants.largeRadius),
+                            boxShadow: [
+                              BoxShadow(
+                                color: UXConstants.primaryColor.withValues(alpha: 0.3),
+                                blurRadius: 12,
+                                offset: const Offset(0, 4),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            children: [
+                              const Icon(
+                                Icons.flash_on,
+                                color: Colors.white,
+                                size: 48,
+                              ),
+                              const SizedBox(height: UXConstants.standardSpacing),
+                              const Text(
+                                'Prêt à jouer ?',
+                                style: TextStyle(
+                                  color: Colors.white,
+                                  fontSize: UXConstants.primaryTextSize,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              const SizedBox(height: UXConstants.minSpacing),
+                              const Text(
+                                'Défiez vos amis et prouvez vos connaissances',
+                                style: TextStyle(
+                                  color: Colors.white70,
+                                  fontSize: UXConstants.captionTextSize,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                              const SizedBox(height: UXConstants.largeSpacing),
+                              UXButton(
+                                text: 'Nouveau Duel 1v1',
+                                icon: Icons.flash_on,
+                                backgroundColor: Colors.white,
+                                textColor: UXConstants.primaryColor,
+                                onPressed: () {
+                                  Navigator.of(context).push(
+                                    MaterialPageRoute(
+                                      builder: (context) => const GameModeScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: UXConstants.largeSpacing),
+                        // Section Duels en cours (compacte)
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Text(
+                              'Duels en cours',
+                              style: TextStyle(
+                                fontSize: UXConstants.secondaryTextSize,
+                                fontWeight: FontWeight.bold,
+                                color: UXConstants.textPrimary,
+                              ),
+                            ),
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 10,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: UXConstants.accentColor.withValues(alpha: 0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Text(
+                                '${_pendingDuels.length}',
+                                style: TextStyle(
+                                  color: UXConstants.primaryColor,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: UXConstants.bodyTextSize,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                        SizedBox(height: UXConstants.standardSpacing),
+                        // Bouton Voir tous les duels
+                        UXButton(
+                          text: 'Voir tous les duels',
+                          isOutlined: true,
+                          backgroundColor: UXConstants.primaryColor,
+                          onPressed: () {
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              const SnackBar(
+                                content: Text('Liste des duels - À venir'),
+                                duration: UXConstants.shortAnimation,
+                              ),
+                            );
+                          },
+                        ),
+                        SizedBox(height: UXConstants.standardSpacing),
+                      ],
+                    ),
                   ),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: _GameModeCard(
-                    icon: Icons.people,
-                    title: 'Avec amis',
-                    subtitle: 'Défie tes amis',
-                    color: Colors.purple,
-                    onTap: () {
-                      // Navigation vers la création de duel (à implémenter)
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(content: Text('Défier un ami - À venir')),
-                      );
-                    },
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 32),
-
-            // Section Catégories
-            const Text(
-              'Catégories',
-              style: TextStyle(
-                fontSize: 20,
-                fontWeight: FontWeight.bold,
               ),
-            ),
-            const SizedBox(height: 16),
-            GridView.builder(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                crossAxisCount: 2,
-                crossAxisSpacing: 12,
-                mainAxisSpacing: 12,
-                childAspectRatio: 1.25,
-              ),
-              itemCount: _categories.length,
-              itemBuilder: (context, index) {
-                return CategoryCard(category: _categories[index]);
-              },
             ),
           ],
         ),
       ),
-    );
-  }
-}
-
-class _GameModeCard extends StatelessWidget {
-  final IconData icon;
-  final String title;
-  final String subtitle;
-  final Color color;
-  final VoidCallback onTap;
-
-  const _GameModeCard({
-    required this.icon,
-    required this.title,
-    required this.subtitle,
-    required this.color,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Card(
-      elevation: 3,
-      child: InkWell(
-        onTap: onTap,
-        borderRadius: BorderRadius.circular(16),
-        child: Container(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 18),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(16),
-            gradient: LinearGradient(
-              begin: Alignment.topLeft,
-              end: Alignment.bottomRight,
-              colors: [
-                color.withOpacity(0.1),
-                color.withOpacity(0.05),
-              ],
-            ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: 0,
+        onTap: (index) {
+          if (index == 1) {
+            Navigator.of(context).pushNamed(
+              '/profile',
+              arguments: {'username': widget.username},
+            );
+          }
+        },
+        type: BottomNavigationBarType.fixed,
+        backgroundColor: UXConstants.cardBackground,
+        selectedItemColor: UXConstants.primaryColor,
+        unselectedItemColor: UXConstants.textSecondary,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(Icons.home),
+            label: 'Accueil',
           ),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Icon(
-                icon,
-                size: 44,
-                color: color,
-              ),
-              const SizedBox(height: 10),
-              Flexible(
-                child: Text(
-                  title,
-                  style: TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-              const SizedBox(height: 4),
-              Flexible(
-                child: Text(
-                  subtitle,
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey[600],
-                  ),
-                  textAlign: TextAlign.center,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-              ),
-            ],
+          BottomNavigationBarItem(
+            icon: Icon(Icons.person),
+            label: 'Profil',
           ),
-        ),
+        ],
       ),
     );
   }
