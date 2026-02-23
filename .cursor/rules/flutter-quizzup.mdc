@@ -1,0 +1,31 @@
+---
+description: Conventions Flutter et structure du projet QuizzUp
+globs: "**/*.dart"
+alwaysApply: false
+---
+
+# Flutter & QuizzUp
+
+## Structure du projet
+
+- **lib/screens/** — Écrans pleine page (StatefulWidget pour conteneurs, StatelessWidget pour contenu).
+- **lib/widgets/** — Composants réutilisables (ex. `ux_button.dart`, `ux_stat_card.dart`).
+- **lib/models/** — Classes de données (Question, Category, Duel, Opponent, etc.).
+- **lib/services/** — Logique métier (QuestionService).
+- **lib/theme/** — AppTheme (Material 3, light/dark).
+- **lib/utils/** — UXConstants et helpers.
+
+## Conventions
+
+- État local uniquement (`setState`). Pas de Provider/Riverpod/BLoC sauf besoin explicite de state partagé.
+- Navigation par routes nommées dans `main.dart` (`/home`, `/login`, `/profile`). Arguments : `Map<String, dynamic>` via `ModalRoute.of(context)?.settings.arguments`.
+- Nommage : PascalCase pour classes, camelCase pour variables/fonctions, snake_case pour fichiers.
+- Toujours utiliser `UXConstants` pour espacements, couleurs, rayons, tailles de texte et durées d’animation (voir règle UX/UI).
+
+## Commandes utiles
+
+- `flutter pub get` — Dépendances
+- `flutter run` — Lancer l’app
+- `flutter analyze` — Analyse
+- `flutter format .` — Formatage
+- `flutter test` — Tests

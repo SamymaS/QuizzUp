@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import '../models/category.dart';
 import '../models/opponent.dart';
+import '../services/game_state_service.dart';
 import '../utils/ux_constants.dart';
 import 'main_navigation_screen.dart';
 import 'quiz_screen.dart';
 
-class QuizResultScreen extends StatelessWidget {
+class QuizResultScreen extends StatefulWidget {
   final int score;
   final int totalQuestions;
   final Category category;
@@ -21,8 +22,29 @@ class QuizResultScreen extends StatelessWidget {
     this.opponent,
   });
 
-  double get _percentage => (score / totalQuestions) * 100;
+  @override
+  State<QuizResultScreen> createState() => _QuizResultScreenState();
+}
+
+class _QuizResultScreenState extends State<QuizResultScreen> {
+  double get _percentage => (widget.score / widget.totalQuestions) * 100;
   bool get _isWin => _percentage >= 50;
+
+  @override
+  void initState() {
+    super.initState();
+    final opponentName = widget.opponent?.name ??
+        (widget.gameMode == 'solo' ? 'Bot' : 'Adversaire');
+    final opponentScore = widget.totalQuestions - widget.score;
+
+    GameStateService.instance.recordGame(
+      isWin: _isWin,
+      category: widget.category.name,
+      myScore: widget.score,
+      opponentScore: opponentScore,
+      opponentName: opponentName,
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -63,9 +85,9 @@ class QuizResultScreen extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  if (gameMode == '1vs1' && opponent != null)
+                  if (widget.gameMode == '1vs1' && widget.opponent != null)
                     Text(
-                      'vs ${opponent!.name}',
+                      'vs ${widget.opponent!.name}',
                       style: const TextStyle(
                         color: Colors.white70,
                         fontSize: UXConstants.bodyTextSize,
@@ -81,37 +103,55 @@ class QuizResultScreen extends StatelessWidget {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    // Score
-                    Container(
-                      width: 200,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        border: Border.all(
-                          color: _isWin ? UXConstants.accentColor : UXConstants.errorColor,
-                          width: 8,
+                    // Score animé
+                    TweenAnimationBuilder<double>(
+                      tween: Tween(begin: 0.5, end: 1.0),
+                      duration: const Duration(milliseconds: 600),
+                      curve: Curves.elasticOut,
+                      builder: (context, scale, child) {
+                        return Transform.scale(
+                          scale: scale,
+                          child: child,
+                        );
+                      },
+                      child: Container(
+                        width: 200,
+                        height: 200,
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: _isWin ? UXConstants.accentColor : UXConstants.errorColor,
+                            width: 8,
+                          ),
                         ),
-                      ),
-                      child: Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text(
-                              '$score',
-                              style: TextStyle(
-                                fontSize: 64,
-                                fontWeight: FontWeight.bold,
-                                color: _isWin ? UXConstants.accentColor : UXConstants.errorColor,
+                        child: Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              TweenAnimationBuilder<double>(
+                                tween: Tween(begin: 0, end: widget.score.toDouble()),
+                                duration: const Duration(milliseconds: 1500),
+                                curve: Curves.easeOut,
+                                builder: (context, value, _) {
+                                  return Text(
+                                    '${value.toInt()}',
+                                    style: TextStyle(
+                                      fontSize: 64,
+                                      fontWeight: FontWeight.bold,
+                                      color: _isWin ? UXConstants.accentColor : UXConstants.errorColor,
+                                    ),
+                                  );
+                                },
                               ),
-                            ),
-                            Text(
-                              '/ $totalQuestions',
-                              style: TextStyle(
-                                fontSize: 24,
-                                color: UXConstants.textSecondary,
+                              Text(
+                                '/ ${widget.totalQuestions}',
+                                style: TextStyle(
+                                  fontSize: 24,
+                                  color: UXConstants.textSecondary,
+                                ),
                               ),
-                            ),
-                          ],
+                            ],
+                          ),
                         ),
                       ),
                     ),
@@ -126,7 +166,7 @@ class QuizResultScreen extends StatelessWidget {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Catégorie : ${category.name}',
+                      'Catégorie : ${widget.category.name}',
                       style: TextStyle(
                         fontSize: UXConstants.captionTextSize,
                         color: UXConstants.textSecondary,
@@ -139,9 +179,9 @@ class QuizResultScreen extends StatelessWidget {
                         Navigator.of(context).pushReplacement(
                           MaterialPageRoute(
                             builder: (context) => QuizScreen(
-                              category: category,
-                              gameMode: gameMode,
-                              opponent: opponent,
+                              category: widget.category,
+                              gameMode: widget.gameMode,
+                              opponent: widget.opponent,
                             ),
                           ),
                         );

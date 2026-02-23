@@ -1,57 +1,24 @@
 import 'package:flutter/material.dart';
-import '../models/user_stats.dart';
 import '../models/badge.dart';
+import '../models/user_stats.dart';
+import '../services/game_state_service.dart';
 import '../utils/ux_constants.dart';
+import '../widgets/badge_card.dart';
+import '../widgets/stat_card.dart';
 
-class ProfileScreenContent extends StatelessWidget {
+class ProfileScreenContent extends StatefulWidget {
   final String username;
-  
-  ProfileScreenContent({
+
+  const ProfileScreenContent({
     super.key,
     required this.username,
   });
 
-  final UserStats _stats = UserStats(
-    victories: 12,
-    inProgress: 5,
-    winRate: 75.0,
-    totalGames: 20,
-    totalWins: 15,
-    totalLosses: 5,
-  );
+  @override
+  State<ProfileScreenContent> createState() => _ProfileScreenContentState();
+}
 
-  final List<UserBadge> _badges = [
-    UserBadge(
-      id: '1',
-      name: 'Premier Duel',
-      description: 'Gagnez votre premier duel',
-      icon: '🏆',
-      isUnlocked: true,
-    ),
-    UserBadge(
-      id: '2',
-      name: 'Série de 5',
-      description: 'Gagnez 5 duels d\'affilée',
-      icon: '🔥',
-      isUnlocked: true,
-    ),
-    UserBadge(
-      id: '3',
-      name: 'Maître',
-      description: 'Gagnez 10 duels',
-      icon: '👑',
-      isUnlocked: true,
-    ),
-    UserBadge(
-      id: '4',
-      name: 'Invincible',
-      description: 'Gagnez 20 duels',
-      icon: '💎',
-      isUnlocked: false,
-    ),
-  ];
-
-
+class _ProfileScreenContentState extends State<ProfileScreenContent> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
@@ -61,182 +28,140 @@ class ProfileScreenContent extends StatelessWidget {
         radius: const Radius.circular(10),
         child: SingleChildScrollView(
           child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            // En-tête avec nom d'utilisateur
-            Padding(
-              padding: UXConstants.cardPadding,
-              child: Column(
-                children: [
-                  CircleAvatar(
-                    radius: 50,
-                    backgroundColor: UXConstants.primaryColor.withValues(alpha: 0.1),
-                    child: Icon(
-                      Icons.person,
-                      size: 50,
-                      color: UXConstants.primaryColor,
-                    ),
-                  ),
-                  SizedBox(height: UXConstants.standardSpacing),
-                  Text(
-                    username,
-                    style: TextStyle(
-                      fontSize: UXConstants.primaryTextSize,
-                      fontWeight: FontWeight.bold,
-                      color: UXConstants.textPrimary,
-                    ),
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: UXConstants.standardSpacing),
-
-            // Statistiques principales
-            Padding(
-              padding: UXConstants.screenPadding,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Statistiques',
-                    style: TextStyle(
-                      fontSize: UXConstants.secondaryTextSize,
-                      fontWeight: FontWeight.bold,
-                      color: UXConstants.textPrimary,
-                    ),
-                  ),
-                  SizedBox(height: UXConstants.standardSpacing),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildStatCard(
-                          icon: Icons.emoji_events,
-                          value: '${_stats.victories}',
-                          label: 'Victoires',
-                          color: UXConstants.warningColor,
-                        ),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // En-tête avec nom d'utilisateur
+              Padding(
+                padding: UXConstants.cardPadding,
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      radius: 50,
+                      backgroundColor: UXConstants.primaryColor.withValues(alpha: 0.1),
+                      child: Icon(
+                        Icons.person,
+                        size: 50,
+                        color: UXConstants.primaryColor,
                       ),
-                      SizedBox(width: UXConstants.standardSpacing),
-                      Expanded(
-                        child: _buildStatCard(
-                          icon: Icons.access_time,
-                          value: '${_stats.inProgress}',
-                          label: 'En cours',
-                          color: UXConstants.secondaryColor,
-                        ),
-                      ),
-                      SizedBox(width: UXConstants.standardSpacing),
-                      Expanded(
-                        child: _buildStatCard(
-                          icon: Icons.trending_up,
-                          value: '${_stats.winRate.toInt()}%',
-                          label: 'Taux',
-                          color: UXConstants.accentColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
-              ),
-            ),
-            SizedBox(height: UXConstants.largeSpacing),
-
-            // Badges avec slider
-            Padding(
-              padding: UXConstants.screenPadding,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(
-                    'Badges',
-                    style: TextStyle(
-                      fontSize: UXConstants.secondaryTextSize,
-                      fontWeight: FontWeight.bold,
-                      color: UXConstants.textPrimary,
                     ),
-                  ),
-                  SizedBox(height: UXConstants.standardSpacing),
-                  _BadgeSlider(badges: _badges),
-                ],
-              ),
-            ),
-            SizedBox(height: UXConstants.largeSpacing),
-            // Bouton Quitter
-            Padding(
-              padding: UXConstants.screenPadding,
-              child: OutlinedButton.icon(
-                onPressed: () {
-                  Navigator.of(context).pushReplacementNamed('/login');
-                },
-                icon: const Icon(Icons.logout),
-                label: const Text('Quitter'),
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: UXConstants.errorColor,
-                  side: BorderSide(color: UXConstants.errorColor, width: 2),
-                  padding: UXConstants.buttonPadding,
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(UXConstants.mediumRadius),
-                  ),
-                  minimumSize: const Size(double.infinity, UXConstants.buttonHeight),
+                    SizedBox(height: UXConstants.standardSpacing),
+                    Text(
+                      widget.username,
+                      style: const TextStyle(
+                        fontSize: UXConstants.primaryTextSize,
+                        fontWeight: FontWeight.bold,
+                        color: UXConstants.textPrimary,
+                      ),
+                    ),
+                  ],
                 ),
               ),
-            ),
-            SizedBox(height: UXConstants.largeSpacing),
-          ],
-        ),
-        ),
-      ),
-    );
-  }
+              SizedBox(height: UXConstants.standardSpacing),
 
-  Widget _buildStatCard({
-    required IconData icon,
-    required String value,
-    required String label,
-    required Color color,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: UXConstants.cardBackground,
-        borderRadius: BorderRadius.circular(UXConstants.mediumRadius),
-        border: Border.all(
-          color: UXConstants.accentColor.withValues(alpha: 0.2),
-          width: 1,
+              // Statistiques principales
+              Padding(
+                padding: UXConstants.screenPadding,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Statistiques',
+                      style: TextStyle(
+                        fontSize: UXConstants.secondaryTextSize,
+                        fontWeight: FontWeight.bold,
+                        color: UXConstants.textPrimary,
+                      ),
+                    ),
+                    SizedBox(height: UXConstants.standardSpacing),
+                    ValueListenableBuilder<UserStats>(
+                      valueListenable: GameStateService.instance.stats,
+                      builder: (context, stats, _) {
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: StatCard(
+                                icon: Icons.emoji_events,
+                                value: '${stats.victories}',
+                                label: 'Victoires',
+                                color: UXConstants.warningColor,
+                              ),
+                            ),
+                            SizedBox(width: UXConstants.standardSpacing),
+                            Expanded(
+                              child: StatCard(
+                                icon: Icons.access_time,
+                                value: '${stats.inProgress}',
+                                label: 'En cours',
+                                color: UXConstants.secondaryColor,
+                              ),
+                            ),
+                            SizedBox(width: UXConstants.standardSpacing),
+                            Expanded(
+                              child: StatCard(
+                                icon: Icons.trending_up,
+                                value: '${stats.winRate.toInt()}%',
+                                label: 'Taux',
+                                color: UXConstants.accentColor,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: UXConstants.largeSpacing),
+
+              // Badges avec slider
+              Padding(
+                padding: UXConstants.screenPadding,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Badges',
+                      style: TextStyle(
+                        fontSize: UXConstants.secondaryTextSize,
+                        fontWeight: FontWeight.bold,
+                        color: UXConstants.textPrimary,
+                      ),
+                    ),
+                    SizedBox(height: UXConstants.standardSpacing),
+                    ValueListenableBuilder<List<UserBadge>>(
+                      valueListenable: GameStateService.instance.badges,
+                      builder: (context, badges, _) {
+                        return _BadgeSlider(badges: badges);
+                      },
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(height: UXConstants.largeSpacing),
+              // Bouton Quitter
+              Padding(
+                padding: UXConstants.screenPadding,
+                child: OutlinedButton.icon(
+                  onPressed: () {
+                    Navigator.of(context).pushReplacementNamed('/login');
+                  },
+                  icon: const Icon(Icons.logout),
+                  label: const Text('Quitter'),
+                  style: OutlinedButton.styleFrom(
+                    foregroundColor: UXConstants.textSecondary,
+                    side: BorderSide(color: UXConstants.textSecondary, width: 2),
+                    padding: UXConstants.buttonPadding,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(UXConstants.mediumRadius),
+                    ),
+                    minimumSize: const Size(double.infinity, UXConstants.buttonHeight),
+                  ),
+                ),
+              ),
+              SizedBox(height: UXConstants.largeSpacing),
+            ],
+          ),
         ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      padding: UXConstants.cardPadding,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: color, size: 32),
-          const SizedBox(height: UXConstants.minSpacing),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: UXConstants.primaryTextSize,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: UXConstants.minSpacing / 2),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: UXConstants.smallTextSize,
-              color: UXConstants.textSecondary,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
-          ),
-        ],
       ),
     );
   }
@@ -300,7 +225,7 @@ class _BadgeSliderState extends State<_BadgeSlider> {
                       padding: EdgeInsets.symmetric(
                         horizontal: UXConstants.minSpacing / 2,
                       ),
-                      child: _BadgeCard(badge: badge),
+                      child: BadgeCard(badge: badge),
                     ),
                   );
                 }).toList(),
@@ -309,7 +234,6 @@ class _BadgeSliderState extends State<_BadgeSlider> {
           ),
         ),
         SizedBox(height: UXConstants.standardSpacing),
-        // Indicateur de position (slider)
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: List.generate(
@@ -337,72 +261,11 @@ class _SliderIndicator extends StatelessWidget {
       width: isActive ? 24 : 8,
       height: 8,
       decoration: BoxDecoration(
-        color: isActive 
-          ? UXConstants.primaryColor 
+        color: isActive
+          ? UXConstants.primaryColor
           : UXConstants.textSecondary.withValues(alpha: 0.3),
         borderRadius: BorderRadius.circular(4),
       ),
     );
   }
 }
-
-class _BadgeCard extends StatelessWidget {
-  final UserBadge badge;
-
-  const _BadgeCard({required this.badge});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      margin: EdgeInsets.only(right: UXConstants.standardSpacing),
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(UXConstants.mediumRadius),
-        color: badge.isUnlocked ? UXConstants.cardBackground : UXConstants.lightBackground,
-        border: Border.all(
-          color: badge.isUnlocked 
-            ? UXConstants.primaryColor.withValues(alpha: 0.3)
-            : UXConstants.textSecondary.withValues(alpha: 0.2),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: badge.isUnlocked ? 0.08 : 0.03),
-            blurRadius: badge.isUnlocked ? 6 : 2,
-            offset: const Offset(0, 2),
-          ),
-        ],
-        ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Flexible(
-            child: Text(
-              badge.icon,
-              style: TextStyle(
-                fontSize: 36,
-                color: badge.isUnlocked ? null : UXConstants.textSecondary.withValues(alpha: 0.5),
-              ),
-            ),
-          ),
-          const SizedBox(height: 6),
-          Flexible(
-            child: Text(
-              badge.name,
-              style: TextStyle(
-                fontSize: 11,
-                fontWeight: FontWeight.bold,
-                color: badge.isUnlocked ? UXConstants.textPrimary : UXConstants.textSecondary.withValues(alpha: 0.5),
-              ),
-              textAlign: TextAlign.center,
-              maxLines: 2,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-

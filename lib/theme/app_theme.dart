@@ -5,7 +5,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.deepPurple,
+        seedColor: const Color(0xFFDC2626),
         brightness: Brightness.light,
       ),
       appBarTheme: const AppBarTheme(
@@ -33,7 +33,7 @@ class AppTheme {
     return ThemeData(
       useMaterial3: true,
       colorScheme: ColorScheme.fromSeed(
-        seedColor: Colors.deepPurple,
+        seedColor: const Color(0xFFDC2626),
         brightness: Brightness.dark,
       ),
       appBarTheme: const AppBarTheme(

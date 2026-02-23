@@ -25,7 +25,7 @@ class QuestionService {
   }
 
   /// Vérifie si une catégorie a suffisamment de questions
-  static bool hasEnoughQuestions(String categoryId, {int minimum = 25}) {
+  static bool hasEnoughQuestions(String categoryId, {int minimum = 50}) {
     return getAllQuestionsByCategory(categoryId).length >= minimum;
   }
 }

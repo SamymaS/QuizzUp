@@ -1,84 +1,30 @@
 import 'package:flutter/material.dart';
-import '../models/duel.dart';
 import '../models/game_history.dart';
+import '../models/user_stats.dart';
+import '../services/game_state_service.dart';
 import '../utils/ux_constants.dart';
+import '../widgets/stat_card.dart';
 import 'category_selection_screen.dart';
 
-class HomeScreenContent extends StatelessWidget {
+class HomeScreenContent extends StatefulWidget {
   final String username;
-  
+
   const HomeScreenContent({
     super.key,
     required this.username,
   });
 
   @override
+  State<HomeScreenContent> createState() => _HomeScreenContentState();
+}
+
+class _HomeScreenContentState extends State<HomeScreenContent> {
+  @override
   Widget build(BuildContext context) {
-    final int victories = 12;
-    final int inProgress = 5;
-    final double winRate = 75.0;
-
-    final List<Duel> pendingDuels = [
-      Duel(
-        id: '1',
-        opponentName: 'Alice',
-        category: 'Culture Générale',
-        createdAt: null,
-        isCompleted: false,
-      ),
-      Duel(
-        id: '2',
-        opponentName: 'Bob',
-        category: 'Histoire',
-        createdAt: null,
-        isCompleted: false,
-      ),
-      Duel(
-        id: '3',
-        opponentName: 'Charlie',
-        category: 'Sciences',
-        createdAt: null,
-        isCompleted: false,
-      ),
-    ];
-
-    final List<GameHistory> gameHistory = [
-      GameHistory(
-        id: '1',
-        opponentName: 'Alice',
-        category: 'Culture Générale',
-        playedAt: DateTime.now().subtract(const Duration(days: 1)),
-        isWin: true,
-        myScore: 8,
-        opponentScore: 5,
-        result: 'Victoire',
-      ),
-      GameHistory(
-        id: '2',
-        opponentName: 'Bob',
-        category: 'Histoire',
-        playedAt: DateTime.now().subtract(const Duration(days: 2)),
-        isWin: false,
-        myScore: 4,
-        opponentScore: 7,
-        result: 'Défaite',
-      ),
-      GameHistory(
-        id: '3',
-        opponentName: 'Charlie',
-        category: 'Sciences',
-        playedAt: DateTime.now().subtract(const Duration(days: 3)),
-        isWin: true,
-        myScore: 9,
-        opponentScore: 6,
-        result: 'Victoire',
-      ),
-    ];
-
     return SafeArea(
       child: Column(
         children: [
-          // Bannière de bienvenue simplifiée
+          // Bannière de bienvenue
           DecoratedBox(
             decoration: BoxDecoration(
               color: UXConstants.primaryColor,
@@ -96,45 +42,45 @@ class HomeScreenContent extends StatelessWidget {
                 vertical: UXConstants.standardSpacing,
               ),
               child: Row(
-              children: [
-                CircleAvatar(
-                  radius: 24,
-                  backgroundColor: Colors.white.withValues(alpha: 0.2),
-                  child: const Icon(
-                    Icons.person,
-                    color: Colors.white,
-                    size: 24,
+                children: [
+                  CircleAvatar(
+                    radius: 24,
+                    backgroundColor: Colors.white.withValues(alpha: 0.2),
+                    child: const Icon(
+                      Icons.person,
+                      color: Colors.white,
+                      size: 24,
+                    ),
                   ),
-                ),
-                SizedBox(width: UXConstants.standardSpacing),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        'BIENVENUE',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: UXConstants.smallTextSize,
-                          fontWeight: FontWeight.w300,
+                  SizedBox(width: UXConstants.standardSpacing),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'BIENVENUE',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: UXConstants.smallTextSize,
+                            fontWeight: FontWeight.w300,
+                          ),
                         ),
-                      ),
-                      Text(
-                        username,
-                        style: const TextStyle(
-                          color: Colors.white,
-                          fontSize: UXConstants.primaryTextSize,
-                          fontWeight: FontWeight.bold,
+                        Text(
+                          widget.username,
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: UXConstants.primaryTextSize,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-              ],
-            ),
+                ],
+              ),
             ),
           ),
-          // Contenu principal avec scroll indicator
+          // Contenu principal
           Expanded(
             child: Scrollbar(
               thumbVisibility: true,
@@ -142,228 +88,227 @@ class HomeScreenContent extends StatelessWidget {
               radius: const Radius.circular(10),
               child: SingleChildScrollView(
                 padding: UXConstants.screenPadding,
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Statistiques
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildStatCard(
-                          icon: Icons.emoji_events,
-                          value: '$victories',
-                          label: 'Victoires',
-                          color: UXConstants.warningColor,
-                        ),
-                      ),
-                      SizedBox(width: UXConstants.standardSpacing),
-                      Expanded(
-                        child: _buildStatCard(
-                          icon: Icons.access_time,
-                          value: '$inProgress',
-                          label: 'En cours',
-                          color: UXConstants.secondaryColor,
-                        ),
-                      ),
-                      SizedBox(width: UXConstants.standardSpacing),
-                      Expanded(
-                        child: _buildStatCard(
-                          icon: Icons.trending_up,
-                          value: '${winRate.toInt()}%',
-                          label: 'Taux',
-                          color: UXConstants.accentColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: UXConstants.largeSpacing),
-                  // Sélection de mode de jeu
-                  Text(
-                    'Choisir un mode de jeu',
-                    style: TextStyle(
-                      fontSize: UXConstants.secondaryTextSize,
-                      fontWeight: FontWeight.bold,
-                      color: UXConstants.textPrimary,
-                    ),
-                  ),
-                  SizedBox(height: UXConstants.standardSpacing),
-                  const _GameModeSelector(),
-                  SizedBox(height: UXConstants.largeSpacing),
-                  // Section Duels en cours
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Duels en cours',
-                        style: TextStyle(
-                          fontSize: UXConstants.secondaryTextSize,
-                          fontWeight: FontWeight.bold,
-                          color: UXConstants.textPrimary,
-                        ),
-                      ),
-                      Chip(
-                        label: Text('${pendingDuels.length}'),
-                        backgroundColor: UXConstants.accentColor.withValues(alpha: 0.2),
-                        labelStyle: TextStyle(
-                          color: UXConstants.primaryColor,
-                          fontWeight: FontWeight.bold,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: UXConstants.standardSpacing),
-                  OutlinedButton.icon(
-                    onPressed: () {
-                      ScaffoldMessenger.of(context).showSnackBar(
-                        const SnackBar(
-                          content: Text('Liste des duels - À venir'),
-                          duration: UXConstants.shortAnimation,
-                        ),
-                      );
-                    },
-                    icon: const Icon(Icons.list),
-                    label: const Text('Voir tous les duels'),
-                    style: OutlinedButton.styleFrom(
-                      foregroundColor: UXConstants.primaryColor,
-                      side: BorderSide(color: UXConstants.primaryColor, width: 2),
-                      padding: UXConstants.buttonPadding,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(UXConstants.mediumRadius),
-                      ),
-                    ),
-                  ),
-                  SizedBox(height: UXConstants.largeSpacing),
-                  // Scoreboard détaillé
-                  Text(
-                    'Scoreboard',
-                    style: TextStyle(
-                      fontSize: UXConstants.secondaryTextSize,
-                      fontWeight: FontWeight.bold,
-                      color: UXConstants.textPrimary,
-                    ),
-                  ),
-                  SizedBox(height: UXConstants.standardSpacing),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildStatCard(
-                          icon: Icons.games,
-                          value: '20',
-                          label: 'Parties',
-                          color: UXConstants.primaryColor,
-                        ),
-                      ),
-                      SizedBox(width: UXConstants.standardSpacing),
-                      Expanded(
-                        child: _buildStatCard(
-                          icon: Icons.check_circle,
-                          value: '15',
-                          label: 'Gagnées',
-                          color: UXConstants.accentColor,
-                        ),
-                      ),
-                      SizedBox(width: UXConstants.standardSpacing),
-                      Expanded(
-                        child: _buildStatCard(
-                          icon: Icons.cancel,
-                          value: '5',
-                          label: 'Perdues',
-                          color: UXConstants.errorColor,
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height: UXConstants.largeSpacing),
-                  // Historique
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        'Historique',
-                        style: TextStyle(
-                          fontSize: UXConstants.secondaryTextSize,
-                          fontWeight: FontWeight.bold,
-                          color: UXConstants.textPrimary,
-                        ),
-                      ),
-                      if (gameHistory.length > 3)
-                        TextButton(
-                          onPressed: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Voir tout l\'historique - À venir'),
-                                duration: UXConstants.shortAnimation,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Statistiques
+                    ValueListenableBuilder<UserStats>(
+                      valueListenable: GameStateService.instance.stats,
+                      builder: (context, stats, _) {
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: StatCard(
+                                icon: Icons.emoji_events,
+                                value: '${stats.victories}',
+                                label: 'Victoires',
+                                color: UXConstants.warningColor,
                               ),
-                            );
-                          },
-                          child: Text(
-                            'Voir tout',
-                            style: TextStyle(
-                              color: UXConstants.primaryColor,
-                              fontWeight: FontWeight.w500,
                             ),
+                            SizedBox(width: UXConstants.standardSpacing),
+                            Expanded(
+                              child: StatCard(
+                                icon: Icons.access_time,
+                                value: '${stats.inProgress}',
+                                label: 'En cours',
+                                color: UXConstants.secondaryColor,
+                              ),
+                            ),
+                            SizedBox(width: UXConstants.standardSpacing),
+                            Expanded(
+                              child: StatCard(
+                                icon: Icons.trending_up,
+                                value: '${stats.winRate.toInt()}%',
+                                label: 'Taux',
+                                color: UXConstants.accentColor,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                    SizedBox(height: UXConstants.largeSpacing),
+                    // Sélection de mode de jeu
+                    Text(
+                      'Choisir un mode de jeu',
+                      style: TextStyle(
+                        fontSize: UXConstants.secondaryTextSize,
+                        fontWeight: FontWeight.bold,
+                        color: UXConstants.textPrimary,
+                      ),
+                    ),
+                    SizedBox(height: UXConstants.standardSpacing),
+                    const _GameModeSelector(),
+                    SizedBox(height: UXConstants.largeSpacing),
+                    // Section Duels en cours (empty state)
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          'Duels en cours',
+                          style: TextStyle(
+                            fontSize: UXConstants.secondaryTextSize,
+                            fontWeight: FontWeight.bold,
+                            color: UXConstants.textPrimary,
                           ),
                         ),
-                    ],
-                  ),
-                  SizedBox(height: UXConstants.standardSpacing),
-                  ...gameHistory.take(3).map((game) => _HistoryCard(game: game)),
-                ],
+                        Chip(
+                          label: const Text('0'),
+                          backgroundColor: UXConstants.accentColor.withValues(alpha: 0.2),
+                          labelStyle: TextStyle(
+                            color: UXConstants.primaryColor,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ],
+                    ),
+                    SizedBox(height: UXConstants.standardSpacing),
+                    OutlinedButton.icon(
+                      onPressed: () {
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Liste des duels - À venir'),
+                            duration: UXConstants.shortAnimation,
+                          ),
+                        );
+                      },
+                      icon: const Icon(Icons.list),
+                      label: const Text('Voir tous les duels'),
+                      style: OutlinedButton.styleFrom(
+                        foregroundColor: UXConstants.primaryColor,
+                        side: BorderSide(color: UXConstants.primaryColor, width: 2),
+                        padding: UXConstants.buttonPadding,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(UXConstants.mediumRadius),
+                        ),
+                      ),
+                    ),
+                    SizedBox(height: UXConstants.largeSpacing),
+                    // Scoreboard détaillé
+                    Text(
+                      'Scoreboard',
+                      style: TextStyle(
+                        fontSize: UXConstants.secondaryTextSize,
+                        fontWeight: FontWeight.bold,
+                        color: UXConstants.textPrimary,
+                      ),
+                    ),
+                    SizedBox(height: UXConstants.standardSpacing),
+                    ValueListenableBuilder<UserStats>(
+                      valueListenable: GameStateService.instance.stats,
+                      builder: (context, stats, _) {
+                        return Row(
+                          children: [
+                            Expanded(
+                              child: StatCard(
+                                icon: Icons.games,
+                                value: '${stats.totalGames}',
+                                label: 'Parties',
+                                color: UXConstants.primaryColor,
+                              ),
+                            ),
+                            SizedBox(width: UXConstants.standardSpacing),
+                            Expanded(
+                              child: StatCard(
+                                icon: Icons.check_circle,
+                                value: '${stats.totalWins}',
+                                label: 'Gagnées',
+                                color: UXConstants.accentColor,
+                              ),
+                            ),
+                            SizedBox(width: UXConstants.standardSpacing),
+                            Expanded(
+                              child: StatCard(
+                                icon: Icons.cancel,
+                                value: '${stats.totalLosses}',
+                                label: 'Perdues',
+                                color: UXConstants.errorColor,
+                              ),
+                            ),
+                          ],
+                        );
+                      },
+                    ),
+                    SizedBox(height: UXConstants.largeSpacing),
+                    // Historique
+                    ValueListenableBuilder<List<GameHistory>>(
+                      valueListenable: GameStateService.instance.history,
+                      builder: (context, gameHistory, _) {
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text(
+                                  'Historique',
+                                  style: TextStyle(
+                                    fontSize: UXConstants.secondaryTextSize,
+                                    fontWeight: FontWeight.bold,
+                                    color: UXConstants.textPrimary,
+                                  ),
+                                ),
+                                if (gameHistory.length > 3)
+                                  TextButton(
+                                    onPressed: () {
+                                      ScaffoldMessenger.of(context).showSnackBar(
+                                        const SnackBar(
+                                          content: Text('Voir tout l\'historique - À venir'),
+                                          duration: UXConstants.shortAnimation,
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      'Voir tout',
+                                      style: TextStyle(
+                                        color: UXConstants.primaryColor,
+                                        fontWeight: FontWeight.w500,
+                                      ),
+                                    ),
+                                  ),
+                              ],
+                            ),
+                            SizedBox(height: UXConstants.standardSpacing),
+                            if (gameHistory.isEmpty)
+                              Container(
+                                padding: UXConstants.cardPadding,
+                                decoration: BoxDecoration(
+                                  color: UXConstants.cardBackground,
+                                  borderRadius: BorderRadius.circular(UXConstants.mediumRadius),
+                                  border: Border.all(
+                                    color: UXConstants.accentColor.withValues(alpha: 0.2),
+                                  ),
+                                ),
+                                child: Center(
+                                  child: Column(
+                                    children: [
+                                      Icon(
+                                        Icons.history,
+                                        size: 40,
+                                        color: UXConstants.textSecondary.withValues(alpha: 0.4),
+                                      ),
+                                      SizedBox(height: UXConstants.minSpacing),
+                                      Text(
+                                        'Aucune partie jouée',
+                                        style: TextStyle(
+                                          color: UXConstants.textSecondary,
+                                          fontSize: UXConstants.captionTextSize,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              )
+                            else
+                              ...gameHistory.take(3).map((game) => _HistoryCard(game: game)),
+                          ],
+                        );
+                      },
+                    ),
+                  ],
+                ),
               ),
-              ),
             ),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildStatCard({
-    required IconData icon,
-    required String value,
-    required String label,
-    required Color color,
-  }) {
-    return Container(
-      decoration: BoxDecoration(
-        color: UXConstants.cardBackground,
-        borderRadius: BorderRadius.circular(UXConstants.mediumRadius),
-        border: Border.all(
-          color: UXConstants.accentColor.withValues(alpha: 0.2),
-          width: 1,
-        ),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.05),
-            blurRadius: 4,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      padding: UXConstants.cardPadding,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(icon, color: color, size: 32),
-          const SizedBox(height: UXConstants.minSpacing),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: UXConstants.primaryTextSize,
-              fontWeight: FontWeight.bold,
-              color: color,
-            ),
-          ),
-          const SizedBox(height: UXConstants.minSpacing / 2),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: UXConstants.smallTextSize,
-              color: UXConstants.textSecondary,
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 2,
-            overflow: TextOverflow.ellipsis,
           ),
         ],
       ),
@@ -373,7 +318,7 @@ class HomeScreenContent extends StatelessWidget {
 
 class _GameModeSelector extends StatefulWidget {
   const _GameModeSelector();
-  
+
   @override
   State<_GameModeSelector> createState() => _GameModeSelectorState();
 }
@@ -410,12 +355,12 @@ class _GameModeSelectorState extends State<_GameModeSelector> {
               padding: UXConstants.cardPadding,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(UXConstants.largeRadius),
-                color: _selectedMode == 'solo' 
+                color: _selectedMode == 'solo'
                   ? Colors.green.withValues(alpha: 0.1)
                   : UXConstants.cardBackground,
                 border: Border.all(
-                  color: _selectedMode == 'solo' 
-                    ? Colors.green[700]! 
+                  color: _selectedMode == 'solo'
+                    ? Colors.green[700]!
                     : UXConstants.accentColor.withValues(alpha: 0.3),
                   width: _selectedMode == 'solo' ? 3 : 1,
                 ),
@@ -433,7 +378,7 @@ class _GameModeSelectorState extends State<_GameModeSelector> {
                     width: 64,
                     height: 64,
                     decoration: BoxDecoration(
-                      color: _selectedMode == 'solo' 
+                      color: _selectedMode == 'solo'
                         ? Colors.green[700]
                         : UXConstants.secondaryColor,
                       shape: BoxShape.circle,
@@ -454,7 +399,7 @@ class _GameModeSelectorState extends State<_GameModeSelector> {
                           style: TextStyle(
                             fontSize: UXConstants.secondaryTextSize,
                             fontWeight: FontWeight.bold,
-                            color: _selectedMode == 'solo' 
+                            color: _selectedMode == 'solo'
                               ? Colors.green[700]
                               : UXConstants.textPrimary,
                           ),
@@ -513,12 +458,12 @@ class _GameModeSelectorState extends State<_GameModeSelector> {
               padding: UXConstants.cardPadding,
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.circular(UXConstants.largeRadius),
-                color: _selectedMode == '1vs1' 
+                color: _selectedMode == '1vs1'
                   ? Colors.green.withValues(alpha: 0.1)
                   : UXConstants.cardBackground,
                 border: Border.all(
-                  color: _selectedMode == '1vs1' 
-                    ? Colors.green[700]! 
+                  color: _selectedMode == '1vs1'
+                    ? Colors.green[700]!
                     : UXConstants.accentColor.withValues(alpha: 0.3),
                   width: _selectedMode == '1vs1' ? 3 : 1,
                 ),
@@ -536,7 +481,7 @@ class _GameModeSelectorState extends State<_GameModeSelector> {
                     width: 64,
                     height: 64,
                     decoration: BoxDecoration(
-                      color: _selectedMode == '1vs1' 
+                      color: _selectedMode == '1vs1'
                         ? Colors.green[700]
                         : UXConstants.primaryColor,
                       shape: BoxShape.circle,
@@ -557,7 +502,7 @@ class _GameModeSelectorState extends State<_GameModeSelector> {
                           style: TextStyle(
                             fontSize: UXConstants.secondaryTextSize,
                             fontWeight: FontWeight.bold,
-                            color: _selectedMode == '1vs1' 
+                            color: _selectedMode == '1vs1'
                               ? Colors.green[700]
                               : UXConstants.textPrimary,
                           ),
@@ -631,7 +576,7 @@ class _HistoryCard extends StatelessWidget {
         ),
         title: Text(
           'vs ${game.opponentName}',
-          style: TextStyle(
+          style: const TextStyle(
             fontWeight: FontWeight.bold,
             fontSize: UXConstants.bodyTextSize,
             color: UXConstants.textPrimary,

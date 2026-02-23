@@ -1,0 +1,31 @@
+---
+description: Conventions UX/UI et lois UX appliquées dans QuizzUp
+globs: "**/*.dart"
+alwaysApply: false
+---
+
+# UX / UI QuizzUp
+
+## Source de vérité
+
+- **Constantes** : `lib/utils/ux_constants.dart` (UXConstants).
+- **Documentation** : `documentation/ux_laws_application.md`.
+
+## Règles obligatoires
+
+1. **Ne jamais hardcoder** espacements, couleurs, rayons, tailles de texte ou durées d’animation. Utiliser `UXConstants` (ex. `UXConstants.standardSpacing`, `UXConstants.primaryColor`, `UXConstants.mediumRadius`, `UXConstants.shortAnimation`).
+2. **Cibles tactiles** : minimum 48×48 dp (`UXConstants.preferredTouchTarget`, `UXConstants.iconButtonSize`).
+3. **Choix par écran** : maximum 5 (`UXConstants.maxChoicesPerScreen`).
+4. **Catégories visibles** : maximum 6 (`UXConstants.maxVisibleCategories`).
+5. **Animations** : 200–500 ms (`UXConstants.shortAnimation`, `mediumAnimation`, `longAnimation`).
+
+## Palette et hiérarchie
+
+- Couleur principale : `UXConstants.primaryColor` (#DC2626).
+- Secondaire / accent : `secondaryColor`, `accentColor`.
+- Textes : `textPrimary`, `textSecondary`, `textLight`.
+- Fonds : `lightBackground`, `cardBackground`.
+
+## Widgets existants
+
+Privilégier les widgets dans `lib/widgets/` (ex. `UXButton`, `UXStatCard`) avant d’en créer de nouveaux.

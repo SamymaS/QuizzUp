@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/ux_constants.dart';
+import '../services/persistence_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -14,6 +15,19 @@ class _LoginScreenState extends State<LoginScreen> {
   bool _isLoading = false;
 
   @override
+  void initState() {
+    super.initState();
+    _loadSavedUsername();
+  }
+
+  Future<void> _loadSavedUsername() async {
+    final saved = await PersistenceService.loadUsername();
+    if (saved != null && saved.isNotEmpty && mounted) {
+      _usernameController.text = saved;
+    }
+  }
+
+  @override
   void dispose() {
     _usernameController.dispose();
     super.dispose();
@@ -26,9 +40,9 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() {
           _isLoading = true;
         });
-        
+
         await Future.delayed(UXConstants.shortAnimation);
-        
+
         if (mounted) {
           setState(() {
             _isLoading = false;
@@ -46,11 +60,11 @@ class _LoginScreenState extends State<LoginScreen> {
   Widget build(BuildContext context) {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final screenHeight = MediaQuery.of(context).size.height;
-    final availableHeight = screenHeight - 
-      MediaQuery.of(context).padding.top - 
-      MediaQuery.of(context).padding.bottom - 
+    final availableHeight = screenHeight -
+      MediaQuery.of(context).padding.top -
+      MediaQuery.of(context).padding.bottom -
       keyboardHeight;
-    
+
     return Scaffold(
       backgroundColor: UXConstants.primaryColor,
       resizeToAvoidBottomInset: true,
@@ -71,11 +85,11 @@ class _LoginScreenState extends State<LoginScreen> {
                   constraints: const BoxConstraints(maxWidth: 400),
                   padding: UXConstants.screenPadding,
                   child: Column(
-                    mainAxisAlignment: keyboardHeight > 0 
-                        ? MainAxisAlignment.start 
+                    mainAxisAlignment: keyboardHeight > 0
+                        ? MainAxisAlignment.start
                         : MainAxisAlignment.center,
                     children: [
-                      if (keyboardHeight > 0) 
+                      if (keyboardHeight > 0)
                         SizedBox(height: UXConstants.extraLargeSpacing),
                       // Icône trophée
                       Container(
@@ -113,8 +127,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           fontWeight: FontWeight.w300,
                         ),
                       ),
-                      SizedBox(height: keyboardHeight > 0 
-                        ? UXConstants.largeSpacing 
+                      SizedBox(height: keyboardHeight > 0
+                        ? UXConstants.largeSpacing
                         : UXConstants.extraLargeSpacing),
                       // Carte de connexion blanche
                       Container(
@@ -230,8 +244,8 @@ class _LoginScreenState extends State<LoginScreen> {
                           ),
                         ),
                       ),
-                      SizedBox(height: keyboardHeight > 0 
-                        ? UXConstants.standardSpacing 
+                      SizedBox(height: keyboardHeight > 0
+                        ? UXConstants.standardSpacing
                         : UXConstants.extraLargeSpacing),
                       const Text(
                         'Prêt à tester vos connaissances ?',
