@@ -1,7 +1,5 @@
 # QuizzUp — Vue d'ensemble du projet
 
-> Dernière mise à jour : 2026-02-26
-
 ---
 
 ## Table des matières
@@ -692,5 +690,3 @@ Fin de partie
 - [ ] Onboarding pour les nouveaux utilisateurs
 
 ---
-
-*Document généré à partir du code source du projet le 2026-02-26.*
