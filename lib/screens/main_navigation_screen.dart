@@ -5,11 +5,13 @@ import 'profile_screen_content.dart';
 
 class MainNavigationScreen extends StatefulWidget {
   final String username;
+  final bool isGuest;
   final int initialIndex;
 
   const MainNavigationScreen({
     super.key,
-    this.username = 'Samy',
+    this.username = 'Joueur',
+    this.isGuest = false,
     this.initialIndex = 0,
   });
 
@@ -26,7 +28,7 @@ class _MainNavigationScreenState extends State<MainNavigationScreen> {
     super.initState();
     _currentIndex = widget.initialIndex;
     _screens = [
-      HomeScreenContent(username: widget.username),
+      HomeScreenContent(username: widget.username, isGuest: widget.isGuest),
       ProfileScreenContent(username: widget.username),
     ];
   }

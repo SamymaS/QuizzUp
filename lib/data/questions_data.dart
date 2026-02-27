@@ -1,7 +1,7 @@
 import '../models/question.dart';
 
 class QuestionsData {
-  static List<Question> _cultureGenerale = [
+  static final List<Question> _cultureGenerale = [
     Question(id: 'cg1', category: '1', question: 'Quelle est la capitale de la France ?', answers: ['Lyon', 'Paris', 'Marseille', 'Toulouse'], correctAnswerIndex: 1),
     Question(id: 'cg2', category: '1', question: 'Combien de continents y a-t-il sur Terre ?', answers: ['5', '6', '7', '8'], correctAnswerIndex: 2),
     Question(id: 'cg3', category: '1', question: 'Quel est le plus grand océan du monde ?', answers: ['Atlantique', 'Pacifique', 'Indien', 'Arctique'], correctAnswerIndex: 1),
@@ -29,7 +29,7 @@ class QuestionsData {
     Question(id: 'cg25', category: '1', question: 'Combien de planètes y a-t-il dans notre système solaire ?', answers: ['7', '8', '9', '10'], correctAnswerIndex: 1),
   ];
 
-  static List<Question> _jeuxVideo = [
+  static final List<Question> _jeuxVideo = [
     Question(id: 'jv1', category: '2', question: 'Quel jeu vidéo a vendu le plus d\'exemplaires ?', answers: ['GTA V', 'Minecraft', 'Tetris', 'Fortnite'], correctAnswerIndex: 1),
     Question(id: 'jv2', category: '2', question: 'Quelle est la première console de jeu vidéo ?', answers: ['Atari 2600', 'Magnavox Odyssey', 'NES', 'PlayStation'], correctAnswerIndex: 1),
     Question(id: 'jv3', category: '2', question: 'Dans quel jeu trouve-t-on le personnage Link ?', answers: ['Final Fantasy', 'The Legend of Zelda', 'Super Mario', 'Pokémon'], correctAnswerIndex: 1),
@@ -57,7 +57,7 @@ class QuestionsData {
     Question(id: 'jv25', category: '2', question: 'Quelle console a été créée par Microsoft ?', answers: ['PlayStation', 'Xbox', 'Nintendo', 'Sega'], correctAnswerIndex: 1),
   ];
 
-  static List<Question> _cinemaSeries = [
+  static final List<Question> _cinemaSeries = [
     Question(id: 'cs1', category: '3', question: 'Quel film a remporté l\'Oscar du meilleur film en 2020 ?', answers: ['1917', 'Parasite', 'Joker', 'Once Upon a Time'], correctAnswerIndex: 1),
     Question(id: 'cs2', category: '3', question: 'Qui a réalisé "Inception" ?', answers: ['Christopher Nolan', 'Steven Spielberg', 'Quentin Tarantino', 'Martin Scorsese'], correctAnswerIndex: 0),
     Question(id: 'cs3', category: '3', question: 'Quel est le nom du héros de "Matrix" ?', answers: ['Neo', 'Morpheus', 'Trinity', 'Agent Smith'], correctAnswerIndex: 0),
@@ -85,7 +85,7 @@ class QuestionsData {
     Question(id: 'cs25', category: '3', question: 'Quelle série suit les aventures de Daenerys Targaryen ?', answers: ['The Witcher', 'Game of Thrones', 'House of the Dragon', 'The Last Kingdom'], correctAnswerIndex: 1),
   ];
 
-  static List<Question> _musique = [
+  static final List<Question> _musique = [
     Question(id: 'mu1', category: '4', question: 'Quel groupe a chanté "Bohemian Rhapsody" ?', answers: ['The Beatles', 'Queen', 'Led Zeppelin', 'Pink Floyd'], correctAnswerIndex: 1),
     Question(id: 'mu2', category: '4', question: 'Quel artiste est surnommé "The King of Pop" ?', answers: ['Elvis Presley', 'Michael Jackson', 'Prince', 'Madonna'], correctAnswerIndex: 1),
     Question(id: 'mu3', category: '4', question: 'Quel groupe a sorti "Stairway to Heaven" ?', answers: ['The Beatles', 'Led Zeppelin', 'Pink Floyd', 'The Rolling Stones'], correctAnswerIndex: 1),
@@ -113,7 +113,7 @@ class QuestionsData {
     Question(id: 'mu25', category: '4', question: 'Quel groupe a sorti "Hey Jude" ?', answers: ['The Rolling Stones', 'The Beatles', 'The Who', 'The Kinks'], correctAnswerIndex: 1),
   ];
 
-  static List<Question> _geographie = [
+  static final List<Question> _geographie = [
     Question(id: 'geo1', category: '5', question: 'Quelle est la capitale du Canada ?', answers: ['Toronto', 'Montréal', 'Ottawa', 'Vancouver'], correctAnswerIndex: 2),
     Question(id: 'geo2', category: '5', question: 'Quel est le plus grand pays d\'Afrique ?', answers: ['Nigeria', 'Algérie', 'Congo', 'Soudan'], correctAnswerIndex: 1),
     Question(id: 'geo3', category: '5', question: 'Quelle est la capitale de l\'Espagne ?', answers: ['Barcelone', 'Madrid', 'Séville', 'Valence'], correctAnswerIndex: 1),
@@ -141,7 +141,7 @@ class QuestionsData {
     Question(id: 'geo25', category: '5', question: 'Quelle est la capitale de l\'Argentine ?', answers: ['Córdoba', 'Buenos Aires', 'Rosario', 'Mendoza'], correctAnswerIndex: 1),
   ];
 
-  static List<Question> _litterature = [
+  static final List<Question> _litterature = [
     Question(id: 'lit1', category: '6', question: 'Qui a écrit "Les Misérables" ?', answers: ['Victor Hugo', 'Émile Zola', 'Gustave Flaubert', 'Honoré de Balzac'], correctAnswerIndex: 0),
     Question(id: 'lit2', category: '6', question: 'Qui a écrit "1984" ?', answers: ['George Orwell', 'Aldous Huxley', 'Ray Bradbury', 'H.G. Wells'], correctAnswerIndex: 0),
     Question(id: 'lit3', category: '6', question: 'Qui a écrit "Le Petit Prince" ?', answers: ['Antoine de Saint-Exupéry', 'Jules Verne', 'Marcel Proust', 'Albert Camus'], correctAnswerIndex: 0),
@@ -169,7 +169,7 @@ class QuestionsData {
     Question(id: 'lit25', category: '6', question: 'Qui a écrit "Le Meilleur des mondes" ?', answers: ['George Orwell', 'Aldous Huxley', 'Ray Bradbury', 'H.G. Wells'], correctAnswerIndex: 1),
   ];
 
-  static List<Question> _sciences = [
+  static final List<Question> _sciences = [
     Question(id: 'sci1', category: '7', question: 'Quel est le symbole chimique de l\'oxygène ?', answers: ['O', 'Ox', 'Og', 'Oy'], correctAnswerIndex: 0),
     Question(id: 'sci2', category: '7', question: 'Combien de chromosomes a l\'être humain ?', answers: ['44', '46', '48', '50'], correctAnswerIndex: 1),
     Question(id: 'sci3', category: '7', question: 'Quelle est la vitesse de la lumière ?', answers: ['300 000 km/s', '150 000 km/s', '450 000 km/s', '200 000 km/s'], correctAnswerIndex: 0),
@@ -197,7 +197,7 @@ class QuestionsData {
     Question(id: 'sci25', category: '7', question: 'Quel est le symbole chimique de l\'or ?', answers: ['Au', 'Ag', 'Or', 'Go'], correctAnswerIndex: 0),
   ];
 
-  static List<Question> _histoire = [
+  static final List<Question> _histoire = [
     Question(id: 'his1', category: '8', question: 'En quelle année a eu lieu la Révolution française ?', answers: ['1787', '1789', '1791', '1793'], correctAnswerIndex: 1),
     Question(id: 'his2', category: '8', question: 'Qui a été le premier empereur de Rome ?', answers: ['Jules César', 'Auguste', 'Néron', 'Caligula'], correctAnswerIndex: 1),
     Question(id: 'his3', category: '8', question: 'En quelle année a eu lieu la Première Guerre mondiale ?', answers: ['1912', '1914', '1916', '1918'], correctAnswerIndex: 1),

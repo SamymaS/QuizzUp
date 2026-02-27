@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../utils/ux_constants.dart';
-import '../services/persistence_service.dart';
+import '../services/auth_service.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -9,50 +9,42 @@ class LoginScreen extends StatefulWidget {
   State<LoginScreen> createState() => _LoginScreenState();
 }
 
-class _LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _usernameController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-  bool _isLoading = false;
+class _LoginScreenState extends State<LoginScreen>
+    with SingleTickerProviderStateMixin {
+  late final TabController _tabController;
 
   @override
   void initState() {
     super.initState();
-    _loadSavedUsername();
-  }
-
-  Future<void> _loadSavedUsername() async {
-    final saved = await PersistenceService.loadUsername();
-    if (saved != null && saved.isNotEmpty && mounted) {
-      _usernameController.text = saved;
-    }
+    _tabController = TabController(length: 2, vsync: this);
   }
 
   @override
   void dispose() {
-    _usernameController.dispose();
+    _tabController.dispose();
     super.dispose();
   }
 
-  Future<void> _handleLogin() async {
-    if (_formKey.currentState!.validate()) {
-      final username = _usernameController.text.trim();
-      if (username.isNotEmpty) {
-        setState(() {
-          _isLoading = true;
-        });
+  void _navigateHome() {
+    if (!mounted) return;
+    Navigator.of(context).pushReplacementNamed(
+      '/home',
+      arguments: {
+        'username': AuthService.instance.username,
+        'isGuest': AuthService.instance.isGuest,
+      },
+    );
+  }
 
-        await Future.delayed(UXConstants.shortAnimation);
-
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-          Navigator.of(context).pushReplacementNamed(
-            '/home',
-            arguments: {'username': username},
-          );
-        }
-      }
+  Future<void> _handleGuest() async {
+    final error = await AuthService.instance.signInAsGuest();
+    if (!mounted) return;
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(error), backgroundColor: UXConstants.errorColor),
+      );
+    } else {
+      _navigateHome();
     }
   }
 
@@ -61,9 +53,9 @@ class _LoginScreenState extends State<LoginScreen> {
     final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
     final screenHeight = MediaQuery.of(context).size.height;
     final availableHeight = screenHeight -
-      MediaQuery.of(context).padding.top -
-      MediaQuery.of(context).padding.bottom -
-      keyboardHeight;
+        MediaQuery.of(context).padding.top -
+        MediaQuery.of(context).padding.bottom -
+        keyboardHeight;
 
     return Scaffold(
       backgroundColor: UXConstants.primaryColor,
@@ -73,9 +65,7 @@ class _LoginScreenState extends State<LoginScreen> {
           child: SingleChildScrollView(
             physics: const ClampingScrollPhysics(),
             child: ConstrainedBox(
-              constraints: BoxConstraints(
-                minHeight: availableHeight,
-              ),
+              constraints: BoxConstraints(minHeight: availableHeight),
               child: Padding(
                 padding: EdgeInsets.only(
                   bottom: keyboardHeight > 0 ? UXConstants.standardSpacing : 0,
@@ -95,7 +85,8 @@ class _LoginScreenState extends State<LoginScreen> {
                       Container(
                         width: 80,
                         height: 80,
-                        padding: const EdgeInsets.all(UXConstants.standardSpacing),
+                        padding:
+                            const EdgeInsets.all(UXConstants.standardSpacing),
                         decoration: BoxDecoration(
                           color: Colors.white.withValues(alpha: 0.15),
                           shape: BoxShape.circle,
@@ -107,7 +98,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       SizedBox(height: UXConstants.largeSpacing),
-                      // Titre QuizzUp
                       const Text(
                         'QuizzUp',
                         style: TextStyle(
@@ -118,7 +108,6 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                       ),
                       SizedBox(height: UXConstants.standardSpacing),
-                      // Tagline
                       const Text(
                         'Défiez vos amis en duel !',
                         style: TextStyle(
@@ -127,134 +116,99 @@ class _LoginScreenState extends State<LoginScreen> {
                           fontWeight: FontWeight.w300,
                         ),
                       ),
-                      SizedBox(height: keyboardHeight > 0
-                        ? UXConstants.largeSpacing
-                        : UXConstants.extraLargeSpacing),
-                      // Carte de connexion blanche
+                      SizedBox(
+                          height: keyboardHeight > 0
+                              ? UXConstants.largeSpacing
+                              : UXConstants.extraLargeSpacing),
+                      // Carte blanche avec onglets
                       Container(
-                        padding: UXConstants.cardPadding,
                         decoration: BoxDecoration(
                           color: Colors.white,
-                          borderRadius: BorderRadius.circular(UXConstants.extraLargeRadius),
+                          borderRadius:
+                              BorderRadius.circular(UXConstants.extraLargeRadius),
                           boxShadow: [
                             BoxShadow(
-                              color: UXConstants.primaryColor.withValues(alpha: 0.15),
+                              color:
+                                  UXConstants.primaryColor.withValues(alpha: 0.15),
                               blurRadius: 20,
                               offset: const Offset(0, 8),
                             ),
                           ],
                         ),
-                        child: Form(
-                          key: _formKey,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            crossAxisAlignment: CrossAxisAlignment.stretch,
-                            children: [
-                              const Text(
-                                'Nom d\'utilisateur',
-                                style: TextStyle(
-                                  color: UXConstants.textPrimary,
-                                  fontSize: UXConstants.captionTextSize,
-                                  fontWeight: FontWeight.w500,
-                                ),
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            // TabBar
+                            ClipRRect(
+                              borderRadius: BorderRadius.only(
+                                topLeft: Radius.circular(UXConstants.extraLargeRadius),
+                                topRight: Radius.circular(UXConstants.extraLargeRadius),
                               ),
-                              SizedBox(height: UXConstants.minSpacing),
-                              TextFormField(
-                                controller: _usernameController,
-                                decoration: InputDecoration(
-                                  hintText: 'Entrez votre pseudo',
-                                  hintStyle: TextStyle(color: UXConstants.textSecondary.withValues(alpha: 0.6)),
-                                  border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(UXConstants.mediumRadius),
-                                    borderSide: BorderSide(
-                                      color: UXConstants.accentColor.withValues(alpha: 0.3),
-                                      width: 1,
-                                    ),
-                                  ),
-                                  enabledBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(UXConstants.mediumRadius),
-                                    borderSide: BorderSide(
-                                      color: UXConstants.accentColor.withValues(alpha: 0.3),
-                                      width: 1,
-                                    ),
-                                  ),
-                                  focusedBorder: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(UXConstants.mediumRadius),
-                                    borderSide: const BorderSide(
-                                      color: UXConstants.primaryColor,
-                                      width: 2,
-                                    ),
-                                  ),
-                                  filled: true,
-                                  fillColor: UXConstants.cardBackground,
-                                  contentPadding: const EdgeInsets.symmetric(
-                                    horizontal: UXConstants.standardSpacing,
-                                    vertical: UXConstants.standardSpacing,
-                                  ),
-                                ),
-                                style: const TextStyle(
+                              child: TabBar(
+                                controller: _tabController,
+                                labelColor: UXConstants.primaryColor,
+                                unselectedLabelColor: UXConstants.textSecondary,
+                                indicatorColor: UXConstants.primaryColor,
+                                indicatorWeight: 3,
+                                labelStyle: const TextStyle(
+                                  fontWeight: FontWeight.bold,
                                   fontSize: UXConstants.bodyTextSize,
-                                  color: UXConstants.textPrimary,
                                 ),
-                                validator: (value) {
-                                  if (value == null || value.trim().isEmpty) {
-                                    return 'Veuillez entrer un nom d\'utilisateur';
-                                  }
-                                  if (value.trim().length < 3) {
-                                    return 'Le pseudo doit contenir au moins 3 caractères';
-                                  }
-                                  return null;
-                                },
-                                textCapitalization: TextCapitalization.none,
-                                autocorrect: false,
-                                textInputAction: TextInputAction.done,
-                                onFieldSubmitted: (_) => _handleLogin(),
+                                tabs: const [
+                                  Tab(text: 'Se connecter'),
+                                  Tab(text: "S'inscrire"),
+                                ],
                               ),
-                              SizedBox(height: UXConstants.largeSpacing),
-                              _isLoading
-                                ? const SizedBox(
-                                    height: UXConstants.buttonHeight,
-                                    child: Center(
-                                      child: CircularProgressIndicator(
-                                        valueColor: AlwaysStoppedAnimation<Color>(
-                                          UXConstants.primaryColor,
-                                        ),
-                                      ),
-                                    ),
-                                  )
-                                : ElevatedButton(
-                                    onPressed: _handleLogin,
-                                    style: ElevatedButton.styleFrom(
-                                      backgroundColor: Colors.white,
-                                      foregroundColor: UXConstants.primaryColor,
-                                      padding: UXConstants.buttonPadding,
-                                      shape: RoundedRectangleBorder(
-                                        borderRadius: BorderRadius.circular(UXConstants.mediumRadius),
-                                      ),
-                                    ),
-                                    child: const Text(
-                                      'Se connecter',
-                                      style: TextStyle(
-                                        fontSize: UXConstants.bodyTextSize,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                            ],
+                            ),
+                            // Tab views
+                            SizedBox(
+                              height: 280,
+                              child: TabBarView(
+                                controller: _tabController,
+                                children: [
+                                  _SignInForm(onSuccess: _navigateHome),
+                                  _SignUpForm(onSuccess: _navigateHome),
+                                ],
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: UXConstants.largeSpacing),
+                      // Bouton Invité
+                      OutlinedButton.icon(
+                        onPressed: _handleGuest,
+                        icon: const Icon(Icons.person_outline,
+                            color: Colors.white70),
+                        label: const Text(
+                          'Continuer en invité',
+                          style: TextStyle(color: Colors.white70),
+                        ),
+                        style: OutlinedButton.styleFrom(
+                          side: const BorderSide(
+                              color: Colors.white54, width: 1.5),
+                          padding: UXConstants.buttonPadding,
+                          shape: RoundedRectangleBorder(
+                            borderRadius:
+                                BorderRadius.circular(UXConstants.mediumRadius),
+                          ),
+                          minimumSize: const Size(double.infinity,
+                              UXConstants.buttonHeight),
+                        ),
+                      ),
+                      SizedBox(
+                          height: keyboardHeight > 0
+                              ? UXConstants.standardSpacing
+                              : UXConstants.largeSpacing),
+                      if (keyboardHeight == 0)
+                        const Text(
+                          'Prêt à tester vos connaissances ?',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: UXConstants.captionTextSize,
+                            fontWeight: FontWeight.w300,
                           ),
                         ),
-                      ),
-                      SizedBox(height: keyboardHeight > 0
-                        ? UXConstants.standardSpacing
-                        : UXConstants.extraLargeSpacing),
-                      const Text(
-                        'Prêt à tester vos connaissances ?',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: UXConstants.captionTextSize,
-                          fontWeight: FontWeight.w300,
-                        ),
-                      ),
                     ],
                   ),
                 ),
@@ -265,4 +219,288 @@ class _LoginScreenState extends State<LoginScreen> {
       ),
     );
   }
+}
+
+// ── Sign-in form ──────────────────────────────────────────────────────────────
+
+class _SignInForm extends StatefulWidget {
+  final VoidCallback onSuccess;
+  const _SignInForm({required this.onSuccess});
+
+  @override
+  State<_SignInForm> createState() => _SignInFormState();
+}
+
+class _SignInFormState extends State<_SignInForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _emailCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
+  bool _isLoading = false;
+  bool _obscure = true;
+
+  @override
+  void dispose() {
+    _emailCtrl.dispose();
+    _passwordCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isLoading = true);
+    final error = await AuthService.instance.signIn(
+      _emailCtrl.text.trim(),
+      _passwordCtrl.text,
+    );
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(error),
+            backgroundColor: UXConstants.errorColor),
+      );
+    } else {
+      widget.onSuccess();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: UXConstants.cardPadding,
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextFormField(
+              controller: _emailCtrl,
+              decoration: _inputDeco('Email', Icons.email_outlined),
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
+              validator: _emailValidator,
+            ),
+            SizedBox(height: UXConstants.standardSpacing),
+            TextFormField(
+              controller: _passwordCtrl,
+              obscureText: _obscure,
+              decoration: _inputDeco('Mot de passe', Icons.lock_outline,
+                  suffix: IconButton(
+                    icon: Icon(_obscure
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined),
+                    onPressed: () => setState(() => _obscure = !_obscure),
+                    color: UXConstants.textSecondary,
+                  )),
+              textInputAction: TextInputAction.done,
+              onFieldSubmitted: (_) => _submit(),
+              validator: (v) =>
+                  (v == null || v.isEmpty) ? 'Mot de passe requis' : null,
+            ),
+            SizedBox(height: UXConstants.largeSpacing),
+            _isLoading
+                ? const SizedBox(
+                    height: UXConstants.buttonHeight,
+                    child: Center(
+                        child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                          UXConstants.primaryColor),
+                    )))
+                : ElevatedButton(
+                    onPressed: _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: UXConstants.primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: UXConstants.buttonPadding,
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(UXConstants.mediumRadius),
+                      ),
+                      minimumSize: const Size(
+                          double.infinity, UXConstants.buttonHeight),
+                    ),
+                    child: const Text(
+                      'Se connecter',
+                      style: TextStyle(
+                          fontSize: UXConstants.bodyTextSize,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Sign-up form ──────────────────────────────────────────────────────────────
+
+class _SignUpForm extends StatefulWidget {
+  final VoidCallback onSuccess;
+  const _SignUpForm({required this.onSuccess});
+
+  @override
+  State<_SignUpForm> createState() => _SignUpFormState();
+}
+
+class _SignUpFormState extends State<_SignUpForm> {
+  final _formKey = GlobalKey<FormState>();
+  final _usernameCtrl = TextEditingController();
+  final _emailCtrl = TextEditingController();
+  final _passwordCtrl = TextEditingController();
+  bool _isLoading = false;
+  bool _obscure = true;
+
+  @override
+  void dispose() {
+    _usernameCtrl.dispose();
+    _emailCtrl.dispose();
+    _passwordCtrl.dispose();
+    super.dispose();
+  }
+
+  Future<void> _submit() async {
+    if (!_formKey.currentState!.validate()) return;
+    setState(() => _isLoading = true);
+    final error = await AuthService.instance.signUp(
+      _emailCtrl.text.trim(),
+      _passwordCtrl.text,
+      _usernameCtrl.text.trim(),
+    );
+    if (!mounted) return;
+    setState(() => _isLoading = false);
+    if (error != null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+            content: Text(error),
+            backgroundColor: UXConstants.errorColor),
+      );
+    } else {
+      widget.onSuccess();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SingleChildScrollView(
+      padding: UXConstants.cardPadding,
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextFormField(
+              controller: _usernameCtrl,
+              decoration: _inputDeco('Pseudo', Icons.person_outline),
+              textInputAction: TextInputAction.next,
+              validator: (v) {
+                if (v == null || v.trim().isEmpty) return 'Pseudo requis';
+                if (v.trim().length < 3) return 'Min. 3 caractères';
+                return null;
+              },
+            ),
+            SizedBox(height: UXConstants.standardSpacing),
+            TextFormField(
+              controller: _emailCtrl,
+              decoration: _inputDeco('Email', Icons.email_outlined),
+              keyboardType: TextInputType.emailAddress,
+              textInputAction: TextInputAction.next,
+              validator: _emailValidator,
+            ),
+            SizedBox(height: UXConstants.standardSpacing),
+            TextFormField(
+              controller: _passwordCtrl,
+              obscureText: _obscure,
+              decoration: _inputDeco('Mot de passe', Icons.lock_outline,
+                  suffix: IconButton(
+                    icon: Icon(_obscure
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined),
+                    onPressed: () => setState(() => _obscure = !_obscure),
+                    color: UXConstants.textSecondary,
+                  )),
+              textInputAction: TextInputAction.done,
+              onFieldSubmitted: (_) => _submit(),
+              validator: (v) {
+                if (v == null || v.isEmpty) return 'Mot de passe requis';
+                if (v.length < 6) return 'Min. 6 caractères';
+                return null;
+              },
+            ),
+            SizedBox(height: UXConstants.largeSpacing),
+            _isLoading
+                ? const SizedBox(
+                    height: UXConstants.buttonHeight,
+                    child: Center(
+                        child: CircularProgressIndicator(
+                      valueColor: AlwaysStoppedAnimation<Color>(
+                          UXConstants.primaryColor),
+                    )))
+                : ElevatedButton(
+                    onPressed: _submit,
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: UXConstants.primaryColor,
+                      foregroundColor: Colors.white,
+                      padding: UXConstants.buttonPadding,
+                      shape: RoundedRectangleBorder(
+                        borderRadius:
+                            BorderRadius.circular(UXConstants.mediumRadius),
+                      ),
+                      minimumSize: const Size(
+                          double.infinity, UXConstants.buttonHeight),
+                    ),
+                    child: const Text(
+                      "S'inscrire",
+                      style: TextStyle(
+                          fontSize: UXConstants.bodyTextSize,
+                          fontWeight: FontWeight.bold),
+                    ),
+                  ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ── Shared helpers ────────────────────────────────────────────────────────────
+
+InputDecoration _inputDeco(String label, IconData icon, {Widget? suffix}) {
+  return InputDecoration(
+    labelText: label,
+    prefixIcon: Icon(icon, color: UXConstants.textSecondary, size: 20),
+    suffixIcon: suffix,
+    border: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(UXConstants.mediumRadius),
+      borderSide: BorderSide(
+          color: UXConstants.accentColor.withValues(alpha: 0.3), width: 1),
+    ),
+    enabledBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(UXConstants.mediumRadius),
+      borderSide: BorderSide(
+          color: UXConstants.accentColor.withValues(alpha: 0.3), width: 1),
+    ),
+    focusedBorder: OutlineInputBorder(
+      borderRadius: BorderRadius.circular(UXConstants.mediumRadius),
+      borderSide:
+          const BorderSide(color: UXConstants.primaryColor, width: 2),
+    ),
+    filled: true,
+    fillColor: UXConstants.cardBackground,
+    contentPadding: const EdgeInsets.symmetric(
+        horizontal: UXConstants.standardSpacing,
+        vertical: UXConstants.standardSpacing),
+    labelStyle: const TextStyle(
+        color: UXConstants.textSecondary,
+        fontSize: UXConstants.captionTextSize),
+  );
+}
+
+String? _emailValidator(String? v) {
+  if (v == null || v.trim().isEmpty) return 'Email requis';
+  if (!RegExp(r'^[^@]+@[^@]+\.[^@]+').hasMatch(v.trim())) {
+    return 'Email invalide';
+  }
+  return null;
 }

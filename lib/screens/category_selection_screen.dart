@@ -1,88 +1,61 @@
 import 'package:flutter/material.dart';
-import '../data/questions_data.dart';
 import '../models/category.dart';
 import '../utils/ux_constants.dart';
+import '../services/question_service.dart';
 import '../widgets/category_card.dart';
 import 'opponent_selection_screen.dart';
 import 'quiz_screen.dart';
 
-class CategorySelectionScreen extends StatelessWidget {
+class CategorySelectionScreen extends StatefulWidget {
   final String gameMode; // 'solo' ou '1vs1'
 
-  CategorySelectionScreen({
+  const CategorySelectionScreen({
     super.key,
     required this.gameMode,
   });
 
-  final List<Category> _categories = [
-    Category(
-      id: '1',
-      name: 'Culture Générale',
-      icon: '🧠',
-      questionCount: QuestionsData.getQuestionsByCategory('1').length,
-      color: Colors.purple,
-    ),
-    Category(
-      id: '2',
-      name: 'Jeux Vidéo',
-      icon: '🎮',
-      questionCount: QuestionsData.getQuestionsByCategory('2').length,
-      color: Colors.blue,
-    ),
-    Category(
-      id: '3',
-      name: 'Cinéma & Séries',
-      icon: '🎬',
-      questionCount: QuestionsData.getQuestionsByCategory('3').length,
-      color: Colors.red,
-    ),
-    Category(
-      id: '4',
-      name: 'Musique',
-      icon: '🎵',
-      questionCount: QuestionsData.getQuestionsByCategory('4').length,
-      color: Colors.pink,
-    ),
-    Category(
-      id: '5',
-      name: 'Géographie',
-      icon: '🌍',
-      questionCount: QuestionsData.getQuestionsByCategory('5').length,
-      color: Colors.green,
-    ),
-    Category(
-      id: '6',
-      name: 'Littérature',
-      icon: '📚',
-      questionCount: QuestionsData.getQuestionsByCategory('6').length,
-      color: Colors.orange,
-    ),
-    Category(
-      id: '7',
-      name: 'Sciences',
-      icon: '🔬',
-      questionCount: QuestionsData.getQuestionsByCategory('7').length,
-      color: Colors.cyan,
-    ),
-    Category(
-      id: '8',
-      name: 'Histoire',
-      icon: '⏰',
-      questionCount: QuestionsData.getQuestionsByCategory('8').length,
-      color: Colors.amber,
-    ),
-    Category(
-      id: '9',
-      name: 'Sport',
-      icon: '⚽',
-      questionCount: QuestionsData.getQuestionsByCategory('9').length,
-      color: Colors.teal,
-    ),
-  ];
+  @override
+  State<CategorySelectionScreen> createState() =>
+      _CategorySelectionScreenState();
+}
+
+class _CategorySelectionScreenState extends State<CategorySelectionScreen> {
+  List<Category> _categories = [];
+  bool _isLoading = true;
+  String? _error;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadCategories();
+  }
+
+  Future<void> _loadCategories() async {
+    setState(() {
+      _isLoading = true;
+      _error = null;
+    });
+    try {
+      final categories = await QuestionService.getCategories();
+      if (mounted) {
+        setState(() {
+          _categories = categories;
+          _isLoading = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _error = 'Impossible de charger les catégories.';
+          _isLoading = false;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final modeText = gameMode == 'solo' ? 'Solo' : '1vs1';
+    final modeText = widget.gameMode == 'solo' ? 'Solo' : '1vs1';
     return Scaffold(
       backgroundColor: UXConstants.lightBackground,
       appBar: AppBar(
@@ -144,53 +117,104 @@ class CategorySelectionScreen extends StatelessWidget {
                 ],
               ),
             ),
-            // Grille de catégories avec scroll indicator
-            Expanded(
-              child: Padding(
-                padding: UXConstants.screenPadding,
-                child: Scrollbar(
-                  thumbVisibility: true,
-                  thickness: 6,
-                  radius: const Radius.circular(10),
-                  child: GridView.builder(
-                    gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                      crossAxisCount: 2,
-                      crossAxisSpacing: 12,
-                      mainAxisSpacing: 12,
-                      childAspectRatio: 1.15,
-                    ),
-                    itemCount: _categories.length,
-                    itemBuilder: (context, index) {
-                      final category = _categories[index];
-                      return CategoryCard(
-                        category: category,
-                        onTap: () {
-                          if (gameMode == 'solo') {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => QuizScreen(
-                                  category: category,
-                                  gameMode: 'solo',
-                                ),
-                              ),
-                            );
-                          } else {
-                            Navigator.of(context).push(
-                              MaterialPageRoute(
-                                builder: (context) => OpponentSelectionScreen(
-                                  category: category,
-                                ),
-                              ),
-                            );
-                          }
-                        },
-                      );
-                    },
+            // Body
+            Expanded(child: _buildBody()),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    if (_isLoading) {
+      return const Center(
+        child: CircularProgressIndicator(
+          valueColor: AlwaysStoppedAnimation<Color>(UXConstants.primaryColor),
+        ),
+      );
+    }
+
+    if (_error != null) {
+      return Center(
+        child: Padding(
+          padding: UXConstants.cardPadding,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Icon(
+                Icons.wifi_off_rounded,
+                size: 48,
+                color: UXConstants.textSecondary.withValues(alpha: 0.5),
+              ),
+              SizedBox(height: UXConstants.standardSpacing),
+              Text(
+                _error!,
+                textAlign: TextAlign.center,
+                style: TextStyle(
+                  color: UXConstants.textSecondary,
+                  fontSize: UXConstants.bodyTextSize,
+                ),
+              ),
+              SizedBox(height: UXConstants.largeSpacing),
+              ElevatedButton.icon(
+                onPressed: _loadCategories,
+                icon: const Icon(Icons.refresh),
+                label: const Text('Réessayer'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: UXConstants.primaryColor,
+                  foregroundColor: Colors.white,
+                  padding: UXConstants.buttonPadding,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(UXConstants.mediumRadius),
                   ),
                 ),
               ),
-            ),
-          ],
+            ],
+          ),
+        ),
+      );
+    }
+
+    return Padding(
+      padding: UXConstants.screenPadding,
+      child: Scrollbar(
+        thumbVisibility: true,
+        thickness: 6,
+        radius: const Radius.circular(10),
+        child: GridView.builder(
+          gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+            crossAxisCount: 2,
+            crossAxisSpacing: 12,
+            mainAxisSpacing: 12,
+            childAspectRatio: 1.15,
+          ),
+          itemCount: _categories.length,
+          itemBuilder: (context, index) {
+            final category = _categories[index];
+            return CategoryCard(
+              category: category,
+              onTap: () {
+                if (widget.gameMode == 'solo') {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => QuizScreen(
+                        category: category,
+                        gameMode: 'solo',
+                      ),
+                    ),
+                  );
+                } else {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (context) => OpponentSelectionScreen(
+                        category: category,
+                      ),
+                    ),
+                  );
+                }
+              },
+            );
+          },
         ),
       ),
     );

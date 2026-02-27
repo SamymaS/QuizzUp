@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/badge.dart';
 import '../models/user_stats.dart';
+import '../services/auth_service.dart';
 import '../services/game_state_service.dart';
 import '../utils/ux_constants.dart';
 import '../widgets/badge_card.dart';
@@ -142,11 +143,14 @@ class _ProfileScreenContentState extends State<ProfileScreenContent> {
               Padding(
                 padding: UXConstants.screenPadding,
                 child: OutlinedButton.icon(
-                  onPressed: () {
-                    Navigator.of(context).pushReplacementNamed('/login');
+                  onPressed: () async {
+                    await AuthService.instance.signOut();
+                    if (context.mounted) {
+                      Navigator.of(context).pushReplacementNamed('/login');
+                    }
                   },
                   icon: const Icon(Icons.logout),
-                  label: const Text('Quitter'),
+                  label: const Text('Se déconnecter'),
                   style: OutlinedButton.styleFrom(
                     foregroundColor: UXConstants.textSecondary,
                     side: BorderSide(color: UXConstants.textSecondary, width: 2),

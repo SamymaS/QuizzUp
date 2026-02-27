@@ -37,6 +37,9 @@ class Question {
 
   int get timeLimit => difficulty.timeLimit;
 
+  /// Alias used by cache / Supabase mapping (maps to [category]).
+  String get categoryId => category;
+
   Question({
     required this.id,
     required this.category,
@@ -46,4 +49,26 @@ class Question {
     this.difficulty = Difficulty.medium,
     this.explanation,
   });
+
+  factory Question.fromMap(Map<String, dynamic> map) {
+    final rawAnswers = map['answers'];
+    final List<String> answers;
+    if (rawAnswers is List) {
+      answers = rawAnswers.map((e) => e.toString()).toList();
+    } else {
+      answers = List<String>.from(rawAnswers as Iterable);
+    }
+    return Question(
+      id: map['id']?.toString() ?? '',
+      category: map['category_id']?.toString() ?? map['category']?.toString() ?? '',
+      question: map['question'] as String,
+      answers: answers,
+      correctAnswerIndex: map['correct_answer_index'] as int,
+      difficulty: Difficulty.values.firstWhere(
+        (d) => d.name == (map['difficulty'] ?? 'medium'),
+        orElse: () => Difficulty.medium,
+      ),
+      explanation: map['explanation'] as String?,
+    );
+  }
 }

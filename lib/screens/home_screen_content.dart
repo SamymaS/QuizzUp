@@ -8,10 +8,12 @@ import 'category_selection_screen.dart';
 
 class HomeScreenContent extends StatefulWidget {
   final String username;
+  final bool isGuest;
 
   const HomeScreenContent({
     super.key,
     required this.username,
+    this.isGuest = false,
   });
 
   @override
@@ -138,7 +140,7 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
                       ),
                     ),
                     SizedBox(height: UXConstants.standardSpacing),
-                    const _GameModeSelector(),
+                    _GameModeSelector(isGuest: widget.isGuest),
                     SizedBox(height: UXConstants.largeSpacing),
                     // Section Duels en cours (empty state)
                     Row(
@@ -317,7 +319,8 @@ class _HomeScreenContentState extends State<HomeScreenContent> {
 }
 
 class _GameModeSelector extends StatefulWidget {
-  const _GameModeSelector();
+  final bool isGuest;
+  const _GameModeSelector({this.isGuest = false});
 
   @override
   State<_GameModeSelector> createState() => _GameModeSelectorState();
@@ -338,9 +341,10 @@ class _GameModeSelectorState extends State<_GameModeSelector> {
               setState(() {
                 _selectedMode = 'solo';
               });
+              final navigator = Navigator.of(context);
               Future.delayed(const Duration(milliseconds: 300), () {
                 if (mounted) {
-                  Navigator.of(context).push(
+                  navigator.push(
                     MaterialPageRoute(
                       builder: (context) => CategorySelectionScreen(
                         gameMode: 'solo',
@@ -437,22 +441,33 @@ class _GameModeSelectorState extends State<_GameModeSelector> {
         Material(
           color: Colors.transparent,
           child: InkWell(
-            onTap: () {
-              setState(() {
-                _selectedMode = '1vs1';
-              });
-              Future.delayed(const Duration(milliseconds: 300), () {
-                if (mounted) {
-                  Navigator.of(context).push(
-                    MaterialPageRoute(
-                      builder: (context) => CategorySelectionScreen(
-                        gameMode: '1vs1',
+            onTap: widget.isGuest
+                ? () {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text(
+                            'Créez un compte pour accéder au mode 1vs1 !'),
+                        duration: UXConstants.shortAnimation,
                       ),
-                    ),
-                  );
-                }
-              });
-            },
+                    );
+                  }
+                : () {
+                    setState(() {
+                      _selectedMode = '1vs1';
+                    });
+                    final navigator = Navigator.of(context);
+                    Future.delayed(const Duration(milliseconds: 300), () {
+                      if (mounted) {
+                        navigator.push(
+                          MaterialPageRoute(
+                            builder: (context) => CategorySelectionScreen(
+                              gameMode: '1vs1',
+                            ),
+                          ),
+                        );
+                      }
+                    });
+                  },
             borderRadius: BorderRadius.circular(UXConstants.largeRadius),
             child: Container(
               padding: UXConstants.cardPadding,
@@ -518,7 +533,13 @@ class _GameModeSelectorState extends State<_GameModeSelector> {
                       ],
                     ),
                   ),
-                  if (_selectedMode == '1vs1')
+                  if (widget.isGuest)
+                    Icon(
+                      Icons.lock_outline,
+                      color: UXConstants.textSecondary.withValues(alpha: 0.5),
+                      size: 24,
+                    )
+                  else if (_selectedMode == '1vs1')
                     Icon(
                       Icons.check_circle,
                       color: Colors.green[700],

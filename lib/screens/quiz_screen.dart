@@ -32,17 +32,28 @@ class _QuizScreenState extends State<QuizScreen> {
   int _timeRemaining = 10;
   bool _isAnswered = false;
   bool _showExplanation = false;
-  late List<Question> _questions;
+  List<Question> _questions = [];
   Key _questionKey = UniqueKey();
+  bool _isLoading = true;
 
   @override
   void initState() {
     super.initState();
-    _questions = QuestionService.getRandomQuestions(
+    _loadQuestions();
+  }
+
+  Future<void> _loadQuestions() async {
+    final questions = await QuestionService.getRandomQuestions(
       widget.category.id,
       count: 10,
     );
-    _startTimer();
+    if (mounted) {
+      setState(() {
+        _questions = questions;
+        _isLoading = false;
+      });
+      _startTimer();
+    }
   }
 
   @override
@@ -159,12 +170,41 @@ class _QuizScreenState extends State<QuizScreen> {
 
   @override
   Widget build(BuildContext context) {
+    if (_isLoading) {
+      return Scaffold(
+        backgroundColor: UXConstants.lightBackground,
+        appBar: AppBar(
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back),
+            onPressed: () => Navigator.of(context).pop(),
+            tooltip: 'Retour',
+          ),
+          title: Text(
+            widget.category.name,
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: UXConstants.secondaryTextSize,
+              color: UXConstants.textPrimary,
+            ),
+          ),
+          backgroundColor: UXConstants.cardBackground,
+          elevation: 0,
+          iconTheme: const IconThemeData(color: UXConstants.textPrimary),
+        ),
+        body: const Center(
+          child: CircularProgressIndicator(
+            valueColor: AlwaysStoppedAnimation<Color>(UXConstants.primaryColor),
+          ),
+        ),
+      );
+    }
+
     final question = _questions[_currentQuestionIndex];
     final progress = (_currentQuestionIndex + 1) / _questions.length;
 
     return PopScope(
       canPop: false,
-      onPopInvoked: (didPop) async {
+      onPopInvokedWithResult: (didPop, _) async {
         if (didPop) return;
         final shouldPop = await _showExitDialog();
         if (shouldPop == true && context.mounted) {
