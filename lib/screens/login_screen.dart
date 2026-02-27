@@ -41,7 +41,10 @@ class _LoginScreenState extends State<LoginScreen>
     if (!mounted) return;
     if (error != null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(error), backgroundColor: UXConstants.errorColor),
+        SnackBar(
+          content: Text(error, style: const TextStyle(color: Colors.white)),
+          backgroundColor: Colors.black87,
+        ),
       );
     } else {
       _navigateHome();
@@ -50,157 +53,141 @@ class _LoginScreenState extends State<LoginScreen>
 
   @override
   Widget build(BuildContext context) {
-    final keyboardHeight = MediaQuery.of(context).viewInsets.bottom;
-    final screenHeight = MediaQuery.of(context).size.height;
-    final availableHeight = screenHeight -
-        MediaQuery.of(context).padding.top -
-        MediaQuery.of(context).padding.bottom -
-        keyboardHeight;
-
     return Scaffold(
       backgroundColor: UXConstants.primaryColor,
       resizeToAvoidBottomInset: true,
       body: SafeArea(
-        child: Center(
-          child: SingleChildScrollView(
+        child: LayoutBuilder(
+          builder: (context, constraints) => SingleChildScrollView(
             physics: const ClampingScrollPhysics(),
             child: ConstrainedBox(
-              constraints: BoxConstraints(minHeight: availableHeight),
-              child: Padding(
-                padding: EdgeInsets.only(
-                  bottom: keyboardHeight > 0 ? UXConstants.standardSpacing : 0,
-                ),
-                child: Container(
-                  width: double.infinity,
-                  constraints: const BoxConstraints(maxWidth: 400),
+              constraints: BoxConstraints(minHeight: constraints.maxHeight),
+              child: Center(
+                child: Padding(
                   padding: UXConstants.screenPadding,
-                  child: Column(
-                    mainAxisAlignment: keyboardHeight > 0
-                        ? MainAxisAlignment.start
-                        : MainAxisAlignment.center,
-                    children: [
-                      if (keyboardHeight > 0)
-                        SizedBox(height: UXConstants.extraLargeSpacing),
-                      // Icône trophée
-                      Container(
-                        width: 80,
-                        height: 80,
-                        padding:
-                            const EdgeInsets.all(UXConstants.standardSpacing),
-                        decoration: BoxDecoration(
-                          color: Colors.white.withValues(alpha: 0.15),
-                          shape: BoxShape.circle,
-                        ),
-                        child: const Icon(
-                          Icons.emoji_events,
-                          color: Colors.white,
-                          size: 48,
-                        ),
-                      ),
-                      SizedBox(height: UXConstants.largeSpacing),
-                      const Text(
-                        'QuizzUp',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 42,
-                          fontWeight: FontWeight.bold,
-                          letterSpacing: 1.2,
-                        ),
-                      ),
-                      SizedBox(height: UXConstants.standardSpacing),
-                      const Text(
-                        'Défiez vos amis en duel !',
-                        style: TextStyle(
-                          color: Colors.white70,
-                          fontSize: UXConstants.bodyTextSize,
-                          fontWeight: FontWeight.w300,
-                        ),
-                      ),
-                      SizedBox(
-                          height: keyboardHeight > 0
-                              ? UXConstants.largeSpacing
-                              : UXConstants.extraLargeSpacing),
-                      // Carte blanche avec onglets
-                      Container(
-                        decoration: BoxDecoration(
-                          color: Colors.white,
-                          borderRadius:
-                              BorderRadius.circular(UXConstants.extraLargeRadius),
-                          boxShadow: [
-                            BoxShadow(
-                              color:
-                                  UXConstants.primaryColor.withValues(alpha: 0.15),
-                              blurRadius: 20,
-                              offset: const Offset(0, 8),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            // TabBar
-                            ClipRRect(
-                              borderRadius: BorderRadius.only(
-                                topLeft: Radius.circular(UXConstants.extraLargeRadius),
-                                topRight: Radius.circular(UXConstants.extraLargeRadius),
-                              ),
-                              child: TabBar(
-                                controller: _tabController,
-                                labelColor: UXConstants.primaryColor,
-                                unselectedLabelColor: UXConstants.textSecondary,
-                                indicatorColor: UXConstants.primaryColor,
-                                indicatorWeight: 3,
-                                labelStyle: const TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: UXConstants.bodyTextSize,
-                                ),
-                                tabs: const [
-                                  Tab(text: 'Se connecter'),
-                                  Tab(text: "S'inscrire"),
-                                ],
-                              ),
-                            ),
-                            // Tab views
-                            SizedBox(
-                              height: 280,
-                              child: TabBarView(
-                                controller: _tabController,
-                                children: [
-                                  _SignInForm(onSuccess: _navigateHome),
-                                  _SignUpForm(onSuccess: _navigateHome),
-                                ],
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: UXConstants.largeSpacing),
-                      // Bouton Invité
-                      OutlinedButton.icon(
-                        onPressed: _handleGuest,
-                        icon: const Icon(Icons.person_outline,
-                            color: Colors.white70),
-                        label: const Text(
-                          'Continuer en invité',
-                          style: TextStyle(color: Colors.white70),
-                        ),
-                        style: OutlinedButton.styleFrom(
-                          side: const BorderSide(
-                              color: Colors.white54, width: 1.5),
-                          padding: UXConstants.buttonPadding,
-                          shape: RoundedRectangleBorder(
-                            borderRadius:
-                                BorderRadius.circular(UXConstants.mediumRadius),
+                  child: Container(
+                    width: double.infinity,
+                    constraints: const BoxConstraints(maxWidth: 400),
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(height: UXConstants.largeSpacing),
+                        // Icône trophée
+                        Container(
+                          width: 80,
+                          height: 80,
+                          padding:
+                              const EdgeInsets.all(UXConstants.standardSpacing),
+                          decoration: BoxDecoration(
+                            color: Colors.white.withValues(alpha: 0.15),
+                            shape: BoxShape.circle,
                           ),
-                          minimumSize: const Size(double.infinity,
-                              UXConstants.buttonHeight),
+                          child: const Icon(
+                            Icons.emoji_events,
+                            color: Colors.white,
+                            size: 48,
+                          ),
                         ),
-                      ),
-                      SizedBox(
-                          height: keyboardHeight > 0
-                              ? UXConstants.standardSpacing
-                              : UXConstants.largeSpacing),
-                      if (keyboardHeight == 0)
+                        SizedBox(height: UXConstants.largeSpacing),
+                        const Text(
+                          'QuizzUp',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 42,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 1.2,
+                          ),
+                        ),
+                        SizedBox(height: UXConstants.standardSpacing),
+                        const Text(
+                          'Défiez vos amis en duel !',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: UXConstants.bodyTextSize,
+                            fontWeight: FontWeight.w300,
+                          ),
+                        ),
+                        SizedBox(height: UXConstants.extraLargeSpacing),
+                        // Carte blanche avec onglets
+                        Container(
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(
+                                UXConstants.extraLargeRadius),
+                            boxShadow: [
+                              BoxShadow(
+                                color: UXConstants.primaryColor
+                                    .withValues(alpha: 0.15),
+                                blurRadius: 20,
+                                offset: const Offset(0, 8),
+                              ),
+                            ],
+                          ),
+                          child: Column(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              // TabBar
+                              ClipRRect(
+                                borderRadius: BorderRadius.only(
+                                  topLeft: Radius.circular(
+                                      UXConstants.extraLargeRadius),
+                                  topRight: Radius.circular(
+                                      UXConstants.extraLargeRadius),
+                                ),
+                                child: TabBar(
+                                  controller: _tabController,
+                                  labelColor: UXConstants.primaryColor,
+                                  unselectedLabelColor:
+                                      UXConstants.textSecondary,
+                                  indicatorColor: UXConstants.primaryColor,
+                                  indicatorWeight: 3,
+                                  labelStyle: const TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: UXConstants.bodyTextSize,
+                                  ),
+                                  tabs: const [
+                                    Tab(text: 'Se connecter'),
+                                    Tab(text: "S'inscrire"),
+                                  ],
+                                ),
+                              ),
+                              // Tab views — hauteur augmentée pour le formulaire d'inscription
+                              SizedBox(
+                                height: 320,
+                                child: TabBarView(
+                                  controller: _tabController,
+                                  children: [
+                                    _SignInForm(onSuccess: _navigateHome),
+                                    _SignUpForm(onSuccess: _navigateHome),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: UXConstants.largeSpacing),
+                        // Bouton Invité
+                        OutlinedButton.icon(
+                          onPressed: _handleGuest,
+                          icon: const Icon(Icons.person_outline,
+                              color: Colors.white70),
+                          label: const Text(
+                            'Continuer en invité',
+                            style: TextStyle(color: Colors.white70),
+                          ),
+                          style: OutlinedButton.styleFrom(
+                            side: const BorderSide(
+                                color: Colors.white54, width: 1.5),
+                            padding: UXConstants.buttonPadding,
+                            shape: RoundedRectangleBorder(
+                              borderRadius:
+                                  BorderRadius.circular(UXConstants.mediumRadius),
+                            ),
+                            minimumSize: const Size(
+                                double.infinity, UXConstants.buttonHeight),
+                          ),
+                        ),
+                        SizedBox(height: UXConstants.largeSpacing),
                         const Text(
                           'Prêt à tester vos connaissances ?',
                           style: TextStyle(
@@ -209,7 +196,8 @@ class _LoginScreenState extends State<LoginScreen>
                             fontWeight: FontWeight.w300,
                           ),
                         ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
