@@ -7,7 +7,7 @@
 
 import 'package:flutter_test/flutter_test.dart';
 
-import 'package:mon_app/main.dart';
+import 'package:quizzup/main.dart';
 
 void main() {
   testWidgets('Home screen displays correctly', (WidgetTester tester) async {

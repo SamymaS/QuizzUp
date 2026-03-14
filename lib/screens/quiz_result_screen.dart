@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../models/category.dart';
 import '../models/opponent.dart';
+import '../services/auth_service.dart';
 import '../services/game_state_service.dart';
 import '../utils/ux_constants.dart';
 import 'main_navigation_screen.dart';
@@ -202,7 +203,11 @@ class _QuizResultScreenState extends State<QuizResultScreen> {
                       onPressed: () {
                         Navigator.of(context).pushAndRemoveUntil(
                           MaterialPageRoute(
-                            builder: (context) => const MainNavigationScreen(initialIndex: 0),
+                            builder: (context) => MainNavigationScreen(
+                            username: AuthService.instance.username,
+                            isGuest: AuthService.instance.isGuest,
+                            initialIndex: 0,
+                          ),
                           ),
                           (route) => false,
                         );
