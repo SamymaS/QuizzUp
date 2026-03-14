@@ -264,6 +264,7 @@ class _SignInFormState extends State<_SignInForm> {
           children: [
             TextFormField(
               controller: _emailCtrl,
+              style: const TextStyle(color: UXConstants.textPrimary),
               decoration: _inputDeco('Email', Icons.email_outlined),
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
@@ -272,6 +273,7 @@ class _SignInFormState extends State<_SignInForm> {
             SizedBox(height: UXConstants.standardSpacing),
             TextFormField(
               controller: _passwordCtrl,
+              style: const TextStyle(color: UXConstants.textPrimary),
               obscureText: _obscure,
               decoration: _inputDeco('Mot de passe', Icons.lock_outline,
                   suffix: IconButton(
@@ -380,6 +382,7 @@ class _SignUpFormState extends State<_SignUpForm> {
           children: [
             TextFormField(
               controller: _usernameCtrl,
+              style: const TextStyle(color: UXConstants.textPrimary),
               decoration: _inputDeco('Pseudo', Icons.person_outline),
               textInputAction: TextInputAction.next,
               validator: (v) {
@@ -391,6 +394,7 @@ class _SignUpFormState extends State<_SignUpForm> {
             SizedBox(height: UXConstants.standardSpacing),
             TextFormField(
               controller: _emailCtrl,
+              style: const TextStyle(color: UXConstants.textPrimary),
               decoration: _inputDeco('Email', Icons.email_outlined),
               keyboardType: TextInputType.emailAddress,
               textInputAction: TextInputAction.next,
@@ -399,6 +403,7 @@ class _SignUpFormState extends State<_SignUpForm> {
             SizedBox(height: UXConstants.standardSpacing),
             TextFormField(
               controller: _passwordCtrl,
+              style: const TextStyle(color: UXConstants.textPrimary),
               obscureText: _obscure,
               decoration: _inputDeco('Mot de passe', Icons.lock_outline,
                   suffix: IconButton(
