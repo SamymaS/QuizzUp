@@ -12,8 +12,8 @@
 | Membre | Rôle |
 |--------|------|
 | **Samy Boudaoud** | Développement mobile (Flutter / Dart) |
-| **Fayrouz Saadaoui** | UX/UI Design (Figma, maquettes, parcours utilisateur) |
-| **Melvin Tomezak** | Documentation technique, schémas, personas |
+| **Melvin Tomezak** | UX/UI Design (Figma, maquettes, parcours utilisateur) |
+| **Fayrouz SAADAOUI** | Documentation technique, schémas, personas |
 
 ---
 
